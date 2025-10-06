@@ -9,6 +9,8 @@
 // Player is basically a Sprite that represents the player. As such it has
 // all properties it needs to track its movement, jumping, and collisions.
 
+enum FacingDir { FACE_LEFT, FACE_RIGHT, FACE_UP, FACE_DOWN };
+
 
 class Player
 {
@@ -28,6 +30,13 @@ private:
 	Texture spritesheet;
 	Sprite *sprite;
 	TileMap *map;
+
+	FacingDir facing;
+
+	bool zWasDown = false;
+	bool punching = false;
+	int  punchElapsedMs = 0;
+	int  punchDurationMs = 250;
 
 };
 

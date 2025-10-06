@@ -7,8 +7,12 @@
 
 enum PlayerAnims
 {
-	STAND_LEFT, STAND_RIGHT, STAND_UP, STAND_DOWN, MOVE_LEFT, MOVE_RIGHT, MOVE_UP, MOVE_DOWN
+	STAND_LEFT, STAND_RIGHT, STAND_UP, STAND_DOWN, 
+	MOVE_LEFT, MOVE_RIGHT, MOVE_UP, MOVE_DOWN,
+	PUNCH_LEFT, PUNCH_RIGHT, PUNCH_UP, PUNCH_DOWN
 };
+
+
 
 
 void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
@@ -17,7 +21,7 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 	spritesheet.loadFromFile("images/solid_snake_normal.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	
 	sprite = Sprite::createSprite(glm::ivec2(16, 32), glm::vec2(0.125, 0.125), &spritesheet, &shaderProgram);
-	sprite->setNumberAnimations(8);
+	sprite->setNumberAnimations(12);
 	
 		sprite->setAnimationSpeed(STAND_LEFT, 8);
 		sprite->addKeyframe(STAND_LEFT, glm::vec2(0.25f, 0.0f));
@@ -50,20 +54,89 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 		sprite->addKeyframe(MOVE_DOWN, glm::vec2(0.f, 0.f));
 		sprite->addKeyframe(MOVE_DOWN, glm::vec2(0.0f, 0.125f));
 		sprite->addKeyframe(MOVE_DOWN, glm::vec2(0.125f, 0.125f));
+
+
+		sprite->setAnimationSpeed(PUNCH_LEFT, 12);
+		sprite->addKeyframe(PUNCH_LEFT, glm::vec2(0.25f, 0.0f));
+		sprite->addKeyframe(PUNCH_LEFT, glm::vec2(0.25f, 0.5f));
+
+		sprite->setAnimationSpeed(PUNCH_RIGHT, 12);
+		sprite->addKeyframe(PUNCH_RIGHT, glm::vec2(0.375f, 0.0f));
+		sprite->addKeyframe(PUNCH_RIGHT, glm::vec2(0.375f, 0.5f));
+
+		sprite->setAnimationSpeed(PUNCH_UP, 12);
+		sprite->addKeyframe(PUNCH_UP, glm::vec2(0.125f, 0.0f));
+		sprite->addKeyframe(PUNCH_UP, glm::vec2(0.125f, 0.5f));
+
+		sprite->setAnimationSpeed(PUNCH_DOWN, 12);
+		sprite->addKeyframe(PUNCH_DOWN, glm::vec2(0.0f, 0.0f));
+		sprite->addKeyframe(PUNCH_DOWN, glm::vec2(0.0f, 0.5f));
 		
 	sprite->changeAnimation(0);
 	tileMapDispl = tileMapPos;
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
-	
+
+	facing = FACE_LEFT;
 }
 
 void Player::update(int deltaTime)
 {
 	sprite->update(deltaTime);
-	if(Game::instance().getKey(GLFW_KEY_LEFT))
+
+	bool zDown = Game::instance().getKey(GLFW_KEY_Z);
+
+	if (punching) {
+		punchElapsedMs += deltaTime;
+		if (punchElapsedMs >= punchDurationMs) {
+			punchElapsedMs = 0;
+
+			if (zDown) {
+				switch (facing) {
+				case FACE_LEFT:  sprite->changeAnimation(PUNCH_LEFT);  break;
+				case FACE_RIGHT: sprite->changeAnimation(PUNCH_RIGHT); break;
+				case FACE_UP:    sprite->changeAnimation(PUNCH_UP);    break;
+				case FACE_DOWN:  sprite->changeAnimation(PUNCH_DOWN);  break;
+				}
+			}
+			else {
+				punching = false;
+				switch (facing) {
+				case FACE_LEFT:  sprite->changeAnimation(STAND_LEFT);  break;
+				case FACE_RIGHT: sprite->changeAnimation(STAND_RIGHT); break;
+				case FACE_UP:    sprite->changeAnimation(STAND_UP);    break;
+				case FACE_DOWN:  sprite->changeAnimation(STAND_DOWN);  break;
+				}
+			}
+		}
+
+		zWasDown = zDown;
+		sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x),
+			float(tileMapDispl.y + posPlayer.y)));
+		return;
+	}
+
+	if (zDown && !zWasDown) {
+		punching = true;
+		punchElapsedMs = 0;
+		switch (facing) {
+			case FACE_LEFT:  sprite->changeAnimation(PUNCH_LEFT);  break;
+			case FACE_RIGHT: sprite->changeAnimation(PUNCH_RIGHT); break;
+			case FACE_UP:    sprite->changeAnimation(PUNCH_UP);    break;
+			case FACE_DOWN:  sprite->changeAnimation(PUNCH_DOWN);  break;
+		}
+
+		zWasDown = zDown;
+		sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x),
+			float(tileMapDispl.y + posPlayer.y)));
+		return;
+	}
+
+	if(Game::instance().getKey(GLFW_KEY_LEFT) || Game::instance().getKey(GLFW_KEY_A))
 	{
-		if(sprite->animation() != MOVE_LEFT)
+		if (sprite->animation() != MOVE_LEFT) {
 			sprite->changeAnimation(MOVE_LEFT);
+			facing = FACE_LEFT;
+		}
 		posPlayer.x -= 2;
 		if(map->collisionMoveLeft(posPlayer, glm::ivec2(16, 32)))
 		{
@@ -71,10 +144,12 @@ void Player::update(int deltaTime)
 			sprite->changeAnimation(STAND_LEFT);
 		}
 	}
-	else if(Game::instance().getKey(GLFW_KEY_RIGHT))
+	else if(Game::instance().getKey(GLFW_KEY_RIGHT) || Game::instance().getKey(GLFW_KEY_D))
 	{
-		if(sprite->animation() != MOVE_RIGHT)
+		if (sprite->animation() != MOVE_RIGHT) {
 			sprite->changeAnimation(MOVE_RIGHT);
+			facing = FACE_RIGHT;
+		}
 		posPlayer.x += 2;
 		if(map->collisionMoveRight(posPlayer, glm::ivec2(16, 32)))
 		{
@@ -82,10 +157,12 @@ void Player::update(int deltaTime)
 			sprite->changeAnimation(STAND_RIGHT);
 		}
 	}
-	else if(Game::instance().getKey(GLFW_KEY_UP))
+	else if(Game::instance().getKey(GLFW_KEY_UP) || Game::instance().getKey(GLFW_KEY_W))
 	{
-		if(sprite->animation() != MOVE_UP)
+		if (sprite->animation() != MOVE_UP) {
 			sprite->changeAnimation(MOVE_UP);
+			facing = FACE_UP;
+		}
 		posPlayer.y -= 2;
 		if(map->collisionMoveRight(posPlayer, glm::ivec2(16, 32)))
 		{
@@ -93,10 +170,12 @@ void Player::update(int deltaTime)
 			sprite->changeAnimation(STAND_UP);
 		}
 	}
-	else if(Game::instance().getKey(GLFW_KEY_DOWN))
+	else if(Game::instance().getKey(GLFW_KEY_DOWN) || Game::instance().getKey(GLFW_KEY_S))
 	{
-		if(sprite->animation() != MOVE_DOWN)
+		if (sprite->animation() != MOVE_DOWN) {
 			sprite->changeAnimation(MOVE_DOWN);
+			facing = FACE_DOWN;
+		}
 		posPlayer.y += 2;
 		if(map->collisionMoveRight(posPlayer, glm::ivec2(16, 32)))
 		{
@@ -106,15 +185,17 @@ void Player::update(int deltaTime)
 	}
 	else
 	{
-		if(sprite->animation() == MOVE_LEFT)
+		if(sprite->animation() == MOVE_LEFT )
 			sprite->changeAnimation(STAND_LEFT);
-		else if(sprite->animation() == MOVE_RIGHT)
+		else if(sprite->animation() == MOVE_RIGHT )
 			sprite->changeAnimation(STAND_RIGHT);
-		else if(sprite->animation() == MOVE_UP)
+		else if(sprite->animation() == MOVE_UP )
 			sprite->changeAnimation(STAND_UP);
 		else if(sprite->animation() == MOVE_DOWN)
 			sprite->changeAnimation(STAND_DOWN);
 	}
+
+	zWasDown = zDown;
 	
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
 }
