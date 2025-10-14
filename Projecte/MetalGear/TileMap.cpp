@@ -50,14 +50,16 @@ bool TileMap::loadLevel(const string &levelFile)
 	ifstream fin;
 	string line, tilesheetFile;
 	stringstream sstream;
-	char tile;
+	unsigned char tile;
 	
-	fin.open(levelFile.c_str());
+	fin.open(levelFile.c_str(), ios::binary);
 	if(!fin.is_open())
 		return false;
+
 	getline(fin, line);
 	if(line.compare(0, 7, "TILEMAP") != 0)
 		return false;
+
 	getline(fin, line);
 	sstream.str(line);
 	sstream >> mapSize.x >> mapSize.y;
@@ -78,23 +80,16 @@ bool TileMap::loadLevel(const string &levelFile)
 	tileTexSize = glm::vec2(1.f / tilesheetSize.x, 1.f / tilesheetSize.y);
 	
 	map = new int[mapSize.x * mapSize.y];
-	for(int j=0; j<mapSize.y; j++)
+	for(int j = 0; j < mapSize.y; j++)
 	{
-		for(int i=0; i<mapSize.x; i++)
+		for(int i = 0; i < mapSize.x; i++)
 		{
-			fin.get(tile);
-			if(tile == ' ')
-				map[j*mapSize.x+i] = 0;
-			else
-				map[j*mapSize.x+i] = tile - int('0');
+			fin.read(reinterpret_cast<char*>(&tile), 1);
+			map[j*mapSize.x + i] = static_cast<int>(tile); // 0 = vacío, 1-255 = tile
 		}
-		fin.get(tile);
-#ifndef _WIN32
-		fin.get(tile);
-#endif
 	}
+
 	fin.close();
-	
 	return true;
 }
 
