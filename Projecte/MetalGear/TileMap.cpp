@@ -47,50 +47,52 @@ void TileMap::free()
 
 bool TileMap::loadLevel(const string &levelFile)
 {
-	ifstream fin;
-	string line, tilesheetFile;
-	stringstream sstream;
-	unsigned char tile;
-	
-	fin.open(levelFile.c_str(), ios::binary);
-	if(!fin.is_open())
-		return false;
+	std::ifstream fin(levelFile);
+    if (!fin.is_open())
+        return false;
 
-	getline(fin, line);
-	if(line.compare(0, 7, "TILEMAP") != 0)
-		return false;
+    std::string line, tilesheetFile;
+    std::stringstream sstream;
 
-	getline(fin, line);
-	sstream.str(line);
-	sstream >> mapSize.x >> mapSize.y;
-	getline(fin, line);
-	sstream.str(line);
-	sstream >> tileSize >> blockSize;
-	getline(fin, line);
-	sstream.str(line);
-	sstream >> tilesheetFile;
-	tilesheet.loadFromFile(tilesheetFile, TEXTURE_PIXEL_FORMAT_RGBA);
-	tilesheet.setWrapS(GL_CLAMP_TO_EDGE);
-	tilesheet.setWrapT(GL_CLAMP_TO_EDGE);
-	tilesheet.setMinFilter(GL_NEAREST);
-	tilesheet.setMagFilter(GL_NEAREST);
-	getline(fin, line);
-	sstream.str(line);
-	sstream >> tilesheetSize.x >> tilesheetSize.y;
-	tileTexSize = glm::vec2(1.f / tilesheetSize.x, 1.f / tilesheetSize.y);
+	std::getline(fin, line);
+    if (line.compare(0, 7, "TILEMAP") != 0)
+        return false;
+
+    std::getline(fin, line);
+    sstream.clear(); sstream.str(line);
+    sstream >> mapSize.x >> mapSize.y;
+
+    std::getline(fin, line);
+    sstream.clear(); sstream.str(line);
+    sstream >> tileSize >> blockSize;
+
+    std::getline(fin, tilesheetFile);
+
+    tilesheet.loadFromFile(tilesheetFile, TEXTURE_PIXEL_FORMAT_RGBA);
+    tilesheet.setWrapS(GL_CLAMP_TO_EDGE);
+    tilesheet.setWrapT(GL_CLAMP_TO_EDGE);
+    tilesheet.setMinFilter(GL_NEAREST);
+    tilesheet.setMagFilter(GL_NEAREST);
+
+    std::getline(fin, line);
+    sstream.clear(); sstream.str(line);
+    sstream >> tilesheetSize.x >> tilesheetSize.y;
+
+    tileTexSize = glm::vec2(1.f / tilesheetSize.x, 1.f / tilesheetSize.y);
 	
 	map = new int[mapSize.x * mapSize.y];
-	for(int j = 0; j < mapSize.y; j++)
-	{
-		for(int i = 0; i < mapSize.x; i++)
-		{
-			fin.read(reinterpret_cast<char*>(&tile), 1);
-			map[j*mapSize.x + i] = static_cast<int>(tile); // 0 = vacío, 1-255 = tile
-		}
-	}
+    for (int j = 0; j < mapSize.y; ++j)
+    {
+        for (int i = 0; i < mapSize.x; ++i)
+        {
+            int value;
+            fin >> value;
+            map[j * mapSize.x + i] = value;
+        }
+    }
 
-	fin.close();
-	return true;
+    fin.close();
+    return true;
 }
 
 void TileMap::prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program)
@@ -199,33 +201,3 @@ bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, i
 	
 	return false;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
