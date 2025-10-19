@@ -1,0 +1,60 @@
+# ================================
+# Build / Debug / Release folders
+# ================================
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+*.log
+*.tlog/
+*.pdb
+*.ilk
+*.idb
+*.exe
+*.dll
+
+# =================================
+# Visual Studio / MSVC cache files
+# =================================
+.vs/
+*.VC.db
+*.VC.opendb
+*.user
+*.suo
+
+# =================================
+# CMake / Build system outputs
+# =================================
+CMakeFiles/
+CMakeCache.txt
+Makefile
+cmake_install.cmake
+*.vcxproj.user
+*.vcxproj.filters
+
+# =================================
+# OS-generated files
+# =================================
+Thumbs.db
+.DS_Store
+
+# =================================
+# Project specific
+# =================================
+Projecte/MetalGear/Debug/
+Projecte/MetalGear/Release/
+Projecte/.vs/
+Projecte/Debug/
+Projecte/Release/
+
+# =================================
+# Logs
+# =================================
+*.log
+
+# =================================
+# Keep only images and source
+# =================================
+!Projecte/MetalGear/images/*.png
