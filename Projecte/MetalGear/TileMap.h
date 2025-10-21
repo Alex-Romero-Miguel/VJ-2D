@@ -1,10 +1,12 @@
 #ifndef _TILE_MAP_INCLUDE
 #define _TILE_MAP_INCLUDE
 
-
 #include <glm/glm.hpp>
 #include "Texture.h"
 #include "ShaderProgram.h"
+#include <deque>
+#include <map>
+#include <vector>
 
 
 // Class Tilemap is capable of loading a tile map from a text file in a very
@@ -12,12 +14,13 @@
 // it builds a single VBO that contains all tiles. As a result the render
 // method draws the whole map independently of what is visible.
 
-
 class TileMap
 {
 
 private:
 	TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program);
+
+
 
 public:
 	// Tile maps can only be created inside an OpenGL context
@@ -33,6 +36,12 @@ public:
 	bool collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size) const;
 	bool collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size) const;
 	bool collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, int *posY) const;
+
+
+	bool isWalkable(int x, int y) const;
+	/*std::deque<glm::ivec2> findPath(glm::ivec2 start, glm::ivec2 goal);*/
+
+	glm::ivec2 getMapSize() const { return mapSize; }
 	
 private:
 	bool loadLevel(const string &levelFile);
@@ -48,7 +57,6 @@ private:
 	Texture tilesheet;
 	glm::vec2 tileTexSize;
 	int *map;
-
 };
 
 

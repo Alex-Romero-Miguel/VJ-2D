@@ -213,7 +213,7 @@ void Player::takeDamage(int amount)
 {
 	health -= amount;
 	if (health < 0) {
-		health = 0; // Evita que la vida sea negativa
+		health = 0;
 	}
 }
 

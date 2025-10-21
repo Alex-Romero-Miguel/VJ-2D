@@ -24,6 +24,11 @@ Scene::~Scene()
 		delete map;
 	if(player != NULL)
 		delete player;
+	for (Enemy* enemy : enemies)
+	{
+		delete enemy;
+	}
+	enemies.clear();
 }
 
 
@@ -35,6 +40,29 @@ void Scene::init()
 	player->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
 	player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
 	player->setTileMap(map);
+
+	const int NUM_ENEMIES = 3;
+
+	glm::ivec2 enemyStartPositions[NUM_ENEMIES] = {
+		glm::ivec2(10, 25),
+		glm::ivec2(20, 20),
+		glm::ivec2(15, 15)
+	};
+
+	
+	for (int i = 0; i < NUM_ENEMIES; ++i)
+	{
+		Enemy* enemy = new Enemy(); // Crea una nueva instancia
+
+		enemy->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
+		enemy->setPosition(glm::vec2(enemyStartPositions[i].x * map->getTileSize(),
+			enemyStartPositions[i].y * map->getTileSize()));
+		enemy->setTileMap(map);
+		enemy->setPlayer(player);
+
+		enemies.push_back(enemy); // Añade el nuevo enemigo al vector
+	}
+
 	projection = glm::ortho(0.f, float(SCREEN_WIDTH), float(SCREEN_HEIGHT), 0.f);
 	currentTime = 0.0f;
 }
@@ -43,6 +71,10 @@ void Scene::update(int deltaTime)
 {
 	currentTime += deltaTime;
 	player->update(deltaTime);
+	for (Enemy* enemy : enemies)
+	{
+		enemy->update(deltaTime);
+	}
 }
 
 void Scene::render()
@@ -57,6 +89,10 @@ void Scene::render()
 	texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
 	map->render();
 	player->render();
+	for (Enemy* enemy : enemies)
+	{
+		enemy->render();
+	}
 }
 
 void Scene::initShaders()

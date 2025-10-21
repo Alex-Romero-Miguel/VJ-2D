@@ -1,20 +1,19 @@
-#include <iostream>
+﻿#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <vector>
 #include "TileMap.h"
-
+#include <queue>
+#include <cmath>
+#include <unordered_map>
 
 using namespace std;
-
 
 TileMap *TileMap::createTileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
 {
 	TileMap *map = new TileMap(levelFile, minCoords, program);
-	
 	return map;
 }
-
 
 TileMap::TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
 {
@@ -163,7 +162,6 @@ bool TileMap::collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size) c
 		if(map[y*mapSize.x+x] != 0)
 			return true;
 	}
-	
 	return false;
 }
 
@@ -201,36 +199,16 @@ bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, i
 			}
 		}
 	}
-	
 	return false;
 }
 
 
+bool TileMap::isWalkable(int x, int y) const
+{
+	// Comprobamos que esté dentro del rango del mapa
+	if (x < 0 || y < 0 || x >= mapSize.x || y >= mapSize.y)
+		return false; // fuera del mapa = no caminable
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	// Si el valor del tile es 0, está vacío => se puede caminar
+	return map[y * mapSize.x + x] == 0;
+}
