@@ -46,3 +46,48 @@ void Guard::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 	enemyState = PATROLLING;
 
 }
+
+void Guard::update(int deltaTime)
+{
+	sprite->update(deltaTime);
+
+	switch (enemyState)
+	{
+	case PATROLLING:
+		patrol();
+		if (canSeePlayer()) {
+			enemyState = CHASING;
+			updatePathToPlayer();
+		}
+		break;
+	case CHASING:
+		chase(deltaTime);
+		break;
+	case RETURNING:
+		patrol();
+		break;
+	}
+	sprite->setPosition(glm::vec2(tileMapDispl.x + posEnemy.x,
+		tileMapDispl.y + posEnemy.y));
+}
+
+
+void Guard::attack(int deltaTime)
+{
+	if (!player) return;
+
+	//shootCooldown -= deltaTime;
+	//if (shootCooldown <= 0) {
+	//	shootCooldown = shootRate;
+
+	//	// --- Crear proyectil ---
+	//	glm::vec2 dir = glm::normalize(player->getPosition() - posEnemy);
+	//	glm::vec2 bulletPos = posEnemy + dir * 16.f; // sale desde frente del enemigo
+
+	//	isShooting = true;
+	//	//sprite->changeAnimation(ENEMY_ATTACK);
+	//}
+	//else {
+	//	isShooting = false;
+	//}
+}

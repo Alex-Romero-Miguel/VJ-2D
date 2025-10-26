@@ -1,4 +1,4 @@
-#ifndef _ENEMY_INCLUDE
+Ôªø#ifndef _ENEMY_INCLUDE
 #define _ENEMY_INCLUDE
 
 #include "Sprite.h"
@@ -11,19 +11,23 @@
 class Enemy
 {
 public:
-	void init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram);
-	void update(int deltaTime);
-	void render();
+	virtual ~Enemy() {}
+
+	virtual void init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram);
+	virtual void update(int deltaTime);
+	virtual void render();
 
 	void setTileMap(TileMap* tileMap);
 	void setPosition(const glm::vec2& pos);
 	void setPlayer(Player* player);
 
-	bool canSeePlayer();
-
 	glm::vec2 getPosition() const { return posEnemy; }
 	glm::ivec2 getSize() const { return glm::ivec2(16, 32); }
 
+private:
+	
+
+protected:
 	enum Facing { FACE_LEFT, FACE_RIGHT, FACE_UP, FACE_DOWN } facing;
 
 	enum EnemyState {
@@ -31,7 +35,7 @@ public:
 		ALERTED,
 		CHASING,
 		RETURNING,
-		ATTACKING, 
+		ATTACKING,
 		DEAD
 	} enemyState;
 
@@ -48,36 +52,43 @@ public:
 		ENEMY_DIE
 	};
 
+	bool canSeePlayer();
+	void patrol();
+	void chase(int deltaTime);
+
 	void updatePathToPlayer();
 	void followPath(int deltaTime);
+	virtual void attack(int deltaTime);
 
 
-private:
 	glm::ivec2 tileMapDispl;
-	glm::vec2 posEnemy;     // posiciÛn en pÌxeles (float para suavidad)
+	glm::vec2 posEnemy;     // posici√≥n en p√≠xeles (float para suavidad)
 	glm::ivec2 patrolStart, patrolEnd, currentPatrolTarget;
 
 	float attackRange = 100.f;
-
-	void patrol();
-	void chase(int deltaTime);
 
 	Texture spritesheet;
 	Sprite* sprite;
 	TileMap* map;
 	Player* player;
 
-	float visionRange = 300.f; // rango de visiÛn
+	float visionRange = 300.f; // rango de visi√≥n
 	float visionAngle = 45.f;  // en grados
 
 	std::deque<Node> path;  // ruta actual
-	int pathCooldown;       // tiempo entre recalculos de path
-
-	glm::ivec2 lastKnownPlayerTile;
-	float lostSightTime = 3.f;
 
 	std::unique_ptr<AStar> pathfinder;
 	glm::ivec2 lastPlayerTile;
+
+	int shootCooldown = 0;         // tiempo entre disparos (ms)
+	int shootRate = 1200;          // cada cu√°nto puede disparar (1.2s)
+	float bulletSpeed = 0.3f;      // velocidad del proyectil
+	bool isShooting = false;
+
+
+	void stopMovingAnim();
+	virtual void changeDirAnim(glm::vec2 dir);
+
 };
 
 #endif // _ENEMY_INCLUDE

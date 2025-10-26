@@ -3,6 +3,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "Scene.h"
 #include "Game.h"
+#include "Guard.h"
+#include "Dog.h"
 
 
 #define SCREEN_X 32
@@ -48,11 +50,10 @@ void Scene::init()
 		glm::ivec2(20, 20),
 		glm::ivec2(15, 15)
 	};
-
 	
 	for (int i = 0; i < NUM_ENEMIES; ++i)
 	{
-		Enemy* enemy = new Enemy(); // Crea una nueva instancia
+		Enemy* enemy = new Guard();
 
 		enemy->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
 		enemy->setPosition(glm::vec2(enemyStartPositions[i].x * map->getTileSize(),
@@ -60,8 +61,16 @@ void Scene::init()
 		enemy->setTileMap(map);
 		enemy->setPlayer(player);
 
-		enemies.push_back(enemy); // Añade el nuevo enemigo al vector
+		enemies.push_back(enemy); 
 	}
+
+	Dog* dog = new Dog();
+	dog->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
+	dog->setPosition(glm::vec2(10 * map->getTileSize(),
+		10 * map->getTileSize()));
+	dog->setTileMap(map);
+	dog->setPlayer(player);
+	enemies.push_back(dog);
 
 	projection = glm::ortho(0.f, float(SCREEN_WIDTH), float(SCREEN_HEIGHT), 0.f);
 	currentTime = 0.0f;

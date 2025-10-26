@@ -3,14 +3,19 @@
 class Guard :
     public Enemy
 {
-    void init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram);
+public: 
+    void init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram) override;
+	void update(int deltaTime) override;
+	
 
 private:
-	bool bJumping;
+	/*bool bJumping;
 	glm::ivec2 tileMapDispl, posEnemy;
 	int jumpAngle, startY;
 	Texture spritesheet;
 	Sprite* sprite;
-	TileMap* map;
+	TileMap* map;*/
+
+	void attack(int deltaTime) override;
 };
 
