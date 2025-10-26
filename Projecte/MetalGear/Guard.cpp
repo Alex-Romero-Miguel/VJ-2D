@@ -7,35 +7,35 @@ void Guard::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 
 	sprite->setNumberAnimations(8);
 
-	sprite->setAnimationSpeed(ENEMY_STAND_LEFT, 8);
-	sprite->addKeyframe(ENEMY_STAND_LEFT, glm::vec2(0.0f, 0.5f));
+	sprite->setAnimationSpeed(GUARD_STAND_LEFT, 8);
+	sprite->addKeyframe(GUARD_STAND_LEFT, glm::vec2(0.0f, 0.5f));
 
-	sprite->setAnimationSpeed(ENEMY_STAND_RIGHT, 8);
-	sprite->addKeyframe(ENEMY_STAND_RIGHT, glm::vec2(0.0f, 0.75f));
+	sprite->setAnimationSpeed(GUARD_STAND_RIGHT, 8);
+	sprite->addKeyframe(GUARD_STAND_RIGHT, glm::vec2(0.0f, 0.75f));
 
-	sprite->setAnimationSpeed(ENEMY_STAND_UP, 8);
-	sprite->addKeyframe(ENEMY_STAND_UP, glm::vec2(0.0f, 0.25f));
+	sprite->setAnimationSpeed(GUARD_STAND_UP, 8);
+	sprite->addKeyframe(GUARD_STAND_UP, glm::vec2(0.0f, 0.25f));
 
-	sprite->setAnimationSpeed(ENEMY_STAND_DOWN, 8);
-	sprite->addKeyframe(ENEMY_STAND_DOWN, glm::vec2(0.0f, 0.0f));
+	sprite->setAnimationSpeed(GUARD_STAND_DOWN, 8);
+	sprite->addKeyframe(GUARD_STAND_DOWN, glm::vec2(0.0f, 0.0f));
 
-	sprite->setAnimationSpeed(ENEMY_MOVE_LEFT, 8);
-	sprite->addKeyframe(ENEMY_MOVE_LEFT, glm::vec2(0.0f, 0.5f));
-	sprite->addKeyframe(ENEMY_MOVE_LEFT, glm::vec2(0.5f, 0.5f));
+	sprite->setAnimationSpeed(GUARD_MOVE_LEFT, 8);
+	sprite->addKeyframe(GUARD_MOVE_LEFT, glm::vec2(0.0f, 0.5f));
+	sprite->addKeyframe(GUARD_MOVE_LEFT, glm::vec2(0.5f, 0.5f));
 
-	sprite->setAnimationSpeed(ENEMY_MOVE_RIGHT, 8);
-	sprite->addKeyframe(ENEMY_MOVE_RIGHT, glm::vec2(0.f, 0.75f));
-	sprite->addKeyframe(ENEMY_MOVE_RIGHT, glm::vec2(0.5f, 0.75f));
+	sprite->setAnimationSpeed(GUARD_MOVE_RIGHT, 8);
+	sprite->addKeyframe(GUARD_MOVE_RIGHT, glm::vec2(0.f, 0.75f));
+	sprite->addKeyframe(GUARD_MOVE_RIGHT, glm::vec2(0.5f, 0.75f));
 
-	sprite->setAnimationSpeed(ENEMY_MOVE_UP, 8);
-	sprite->addKeyframe(ENEMY_MOVE_UP, glm::vec2(0.0f, 0.25f));
-	sprite->addKeyframe(ENEMY_MOVE_UP, glm::vec2(0.5f, 0.25f));
+	sprite->setAnimationSpeed(GUARD_MOVE_UP, 8);
+	sprite->addKeyframe(GUARD_MOVE_UP, glm::vec2(0.0f, 0.25f));
+	sprite->addKeyframe(GUARD_MOVE_UP, glm::vec2(0.5f, 0.25f));
 
-	sprite->setAnimationSpeed(ENEMY_MOVE_DOWN, 8);
-	sprite->addKeyframe(ENEMY_MOVE_DOWN, glm::vec2(0.f, 0.f));
-	sprite->addKeyframe(ENEMY_MOVE_DOWN, glm::vec2(0.5f, 0.f));
+	sprite->setAnimationSpeed(GUARD_MOVE_DOWN, 8);
+	sprite->addKeyframe(GUARD_MOVE_DOWN, glm::vec2(0.f, 0.f));
+	sprite->addKeyframe(GUARD_MOVE_DOWN, glm::vec2(0.5f, 0.f));
 
-	sprite->changeAnimation(ENEMY_STAND_DOWN);
+	sprite->changeAnimation(GUARD_STAND_DOWN);
 	tileMapDispl = tileMapPos;
 
 	posEnemy = glm::vec2(0, 0);
@@ -43,7 +43,9 @@ void Guard::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 	sprite->setPosition(glm::vec2(tileMapDispl.x + posEnemy.x,
 		tileMapDispl.y + posEnemy.y));
 
-	enemyState = PATROLLING;
+	state = PATROLLING;
+
+	health = 10;
 
 }
 
@@ -51,12 +53,12 @@ void Guard::update(int deltaTime)
 {
 	sprite->update(deltaTime);
 
-	switch (enemyState)
+	switch (state)
 	{
 	case PATROLLING:
 		patrol();
 		if (canSeePlayer()) {
-			enemyState = CHASING;
+			state = CHASING;
 			updatePathToPlayer();
 		}
 		break;
@@ -75,19 +77,29 @@ void Guard::update(int deltaTime)
 void Guard::attack(int deltaTime)
 {
 	if (!player) return;
+}
 
-	//shootCooldown -= deltaTime;
-	//if (shootCooldown <= 0) {
-	//	shootCooldown = shootRate;
+void Guard::stopMovingAnim() {
+	switch (facing) {
+	case FACE_LEFT:  sprite->changeAnimation(GUARD_STAND_LEFT);  break;
+	case FACE_RIGHT: sprite->changeAnimation(GUARD_STAND_RIGHT); break;
+	case FACE_UP:    sprite->changeAnimation(GUARD_STAND_UP);    break;
+	case FACE_DOWN:  sprite->changeAnimation(GUARD_STAND_DOWN);  break;
+	}
+}
 
-	//	// --- Crear proyectil ---
-	//	glm::vec2 dir = glm::normalize(player->getPosition() - posEnemy);
-	//	glm::vec2 bulletPos = posEnemy + dir * 16.f; // sale desde frente del enemigo
 
-	//	isShooting = true;
-	//	//sprite->changeAnimation(ENEMY_ATTACK);
-	//}
-	//else {
-	//	isShooting = false;
-	//}
+void Guard::changeDirAnim(glm::vec2 dir) {
+	GuardAnim newAnim;
+	if (fabs(dir.x) > fabs(dir.y)) {
+		if (dir.x > 0) { newAnim = GUARD_MOVE_RIGHT; facing = FACE_RIGHT; }
+		else { newAnim = GUARD_MOVE_LEFT; facing = FACE_LEFT; }
+	}
+	else {
+		if (dir.y > 0) { newAnim = GUARD_MOVE_DOWN; facing = FACE_DOWN; }
+		else { newAnim = GUARD_MOVE_UP; facing = FACE_UP; }
+	}
+
+	if (sprite->animation() != newAnim)
+		sprite->changeAnimation(newAnim);
 }

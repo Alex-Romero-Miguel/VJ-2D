@@ -4,72 +4,10 @@
 
 void Enemy::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 {
-	spritesheet.loadFromFile("images/guard.png", TEXTURE_PIXEL_FORMAT_RGBA);
-	sprite = Sprite::createSprite(glm::ivec2(16, 32), glm::vec2(0.5, 0.25), &spritesheet, &shaderProgram);
-
-	sprite->setNumberAnimations(8);
-
-	sprite->setAnimationSpeed(ENEMY_STAND_LEFT, 8);
-	sprite->addKeyframe(ENEMY_STAND_LEFT, glm::vec2(0.0f, 0.5f));
-
-	sprite->setAnimationSpeed(ENEMY_STAND_RIGHT, 8);
-	sprite->addKeyframe(ENEMY_STAND_RIGHT, glm::vec2(0.0f, 0.75f));
-
-	sprite->setAnimationSpeed(ENEMY_STAND_UP, 8);
-	sprite->addKeyframe(ENEMY_STAND_UP, glm::vec2(0.0f, 0.25f));
-
-	sprite->setAnimationSpeed(ENEMY_STAND_DOWN, 8);
-	sprite->addKeyframe(ENEMY_STAND_DOWN, glm::vec2(0.0f, 0.0f));
-
-	sprite->setAnimationSpeed(ENEMY_MOVE_LEFT, 8);
-	sprite->addKeyframe(ENEMY_MOVE_LEFT, glm::vec2(0.0f, 0.5f));
-	sprite->addKeyframe(ENEMY_MOVE_LEFT, glm::vec2(0.5f, 0.5f));
-
-	sprite->setAnimationSpeed(ENEMY_MOVE_RIGHT, 8);
-	sprite->addKeyframe(ENEMY_MOVE_RIGHT, glm::vec2(0.f, 0.75f));
-	sprite->addKeyframe(ENEMY_MOVE_RIGHT, glm::vec2(0.5f, 0.75f));
-
-	sprite->setAnimationSpeed(ENEMY_MOVE_UP, 8);
-	sprite->addKeyframe(ENEMY_MOVE_UP, glm::vec2(0.0f, 0.25f));
-	sprite->addKeyframe(ENEMY_MOVE_UP, glm::vec2(0.5f, 0.25f));
-
-	sprite->setAnimationSpeed(ENEMY_MOVE_DOWN, 8);
-	sprite->addKeyframe(ENEMY_MOVE_DOWN, glm::vec2(0.f, 0.f));
-	sprite->addKeyframe(ENEMY_MOVE_DOWN, glm::vec2(0.5f, 0.f));
-
-	sprite->changeAnimation(ENEMY_STAND_DOWN);
-	tileMapDispl = tileMapPos;
-
-	posEnemy = glm::vec2(0, 0);
-
-	sprite->setPosition(glm::vec2(tileMapDispl.x + posEnemy.x,
-		tileMapDispl.y + posEnemy.y));
-
-	enemyState = PATROLLING;
 }
 
 void Enemy::update(int deltaTime)
 {
-	sprite->update(deltaTime);
-
-	switch (enemyState)
-	{
-	case PATROLLING:
-		patrol();
-		if (canSeePlayer()) {
-			enemyState = CHASING;
-			//updatePathToPlayer();
-		}
-		break;
-	case CHASING:
-		chase(deltaTime);
-		break;
-	case RETURNING:
-		patrol();
-		break;
-	}
-	sprite->setPosition(glm::vec2(tileMapDispl.x + posEnemy.x,
-		tileMapDispl.y + posEnemy.y));
 }
 
 void Enemy::render()
@@ -86,8 +24,7 @@ void Enemy::setTileMap(TileMap* tileMap)
 void Enemy::setPosition(const glm::vec2& pos)
 {
 	posEnemy = pos;
-	sprite->setPosition(glm::vec2(tileMapDispl.x + posEnemy.x,
-		tileMapDispl.y + posEnemy.y));
+	sprite->setPosition(glm::vec2(tileMapDispl.x + posEnemy.x, tileMapDispl.y + posEnemy.y));
 }
 
 void Enemy::setPlayer(Player* p)
@@ -122,17 +59,25 @@ bool Enemy::canSeePlayer()
 	glm::vec2 dir = glm::normalize(diff);
 	const float step = 8.f;
 
+	glm::vec2 current = enemyCenter;
+	while (glm::distance(current, playerCenter) > step)
+	{
+		current += dir * step;
+
+		// Convertimos la posición a coordenadas de tile
+		int tileX = int(current.x) / map->getTileSize();
+		int tileY = int(current.y) / map->getTileSize();
+
+		// Si el tile no es walkable, significa que hay una pared
+		if (!map->isWalkable(tileX, tileY))
+			return false; // visión bloqueada
+	}
+
 	return true;
 }
 
 void Enemy::patrol()
 {
-	switch (facing) {
-	case FACE_LEFT:  sprite->changeAnimation(ENEMY_STAND_LEFT);  break;
-	case FACE_RIGHT: sprite->changeAnimation(ENEMY_STAND_RIGHT); break;
-	case FACE_UP:    sprite->changeAnimation(ENEMY_STAND_UP);    break;
-	case FACE_DOWN:  sprite->changeAnimation(ENEMY_STAND_DOWN);  break;
-	}
 }
 
 void Enemy::chase(int deltaTime)
@@ -193,52 +138,17 @@ void Enemy::followPath(int deltaTime)
 	posEnemy += dir * speed * float(deltaTime);
 
 	changeDirAnim(dir);
-
-	//sprite->setPosition(glm::vec2(tileMapDispl.x + posEnemy.x,tileMapDispl.y + posEnemy.y));
 }
 
 void Enemy::stopMovingAnim() {
-	switch (facing) {
-	case FACE_LEFT:  sprite->changeAnimation(ENEMY_STAND_LEFT);  break;
-	case FACE_RIGHT: sprite->changeAnimation(ENEMY_STAND_RIGHT); break;
-	case FACE_UP:    sprite->changeAnimation(ENEMY_STAND_UP);    break;
-	case FACE_DOWN:  sprite->changeAnimation(ENEMY_STAND_DOWN);  break;
-	}
 }
 
 
 void Enemy::changeDirAnim(glm::vec2 dir) {
-	EnemyAnim newAnim;
-	if (fabs(dir.x) > fabs(dir.y)) {
-		if (dir.x > 0) { newAnim = ENEMY_MOVE_RIGHT; facing = FACE_RIGHT; }
-		else { newAnim = ENEMY_MOVE_LEFT; facing = FACE_LEFT; }
-	}
-	else {
-		if (dir.y > 0) { newAnim = ENEMY_MOVE_DOWN; facing = FACE_DOWN; }
-		else { newAnim = ENEMY_MOVE_UP; facing = FACE_UP; }
-	}
-
-	if (sprite->animation() != newAnim)
-		sprite->changeAnimation(newAnim);
 }
 
 
 void Enemy::attack(int deltaTime)
 {
-	if (!player) return;
 
-	//shootCooldown -= deltaTime;
-	//if (shootCooldown <= 0) {
-	//	shootCooldown = shootRate;
-
-	//	// --- Crear proyectil ---
-	//	glm::vec2 dir = glm::normalize(player->getPosition() - posEnemy);
-	//	glm::vec2 bulletPos = posEnemy + dir * 16.f; // sale desde frente del enemigo
-
-	//	isShooting = true;
-	//	//sprite->changeAnimation(ENEMY_ATTACK);
-	//}
-	//else {
-	//	isShooting = false;
-	//}
 }

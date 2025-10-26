@@ -4,6 +4,7 @@
 
 #include "Sprite.h"
 #include "TileMap.h"
+#include "ShaderProgram.h"
 
 
 // Player is basically a Sprite that represents the player. As such it has
@@ -13,7 +14,7 @@ enum PlayerAnims
 {
 	STAND_LEFT, STAND_RIGHT, STAND_UP, STAND_DOWN,
 	MOVE_LEFT, MOVE_RIGHT, MOVE_UP, MOVE_DOWN,
-	PUNCH_LEFT, PUNCH_RIGHT, PUNCH_UP, PUNCH_DOWN
+	PUNCH_LEFT, PUNCH_RIGHT, PUNCH_UP, PUNCH_DOWN, DEAD
 };
 
 enum FacingDir { FACE_LEFT, FACE_RIGHT, FACE_UP, FACE_DOWN };
@@ -45,6 +46,7 @@ private:
 	Texture spritesheet;
 	Sprite *sprite;
 	TileMap *map;
+	ShaderProgram* shaderProgram;
 
 	FacingDir facing;
 
@@ -53,8 +55,13 @@ private:
 	int  punchElapsedMs = 0;
 	int  punchDurationMs = 250;
 
+	bool isHurt = false;
+	int hurtTimer = 0;
+	float hurtBlinkTime = 0.f;
+
+	
+	static const int STARTING_HEALTH = 100;
 	int health; // Vida actual del jugador
-	static const int STARTING_HEALTH = 3;
 };
 
 

@@ -20,8 +20,6 @@ class TileMap
 private:
 	TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program);
 
-
-
 public:
 	// Tile maps can only be created inside an OpenGL context
 	static TileMap *createTileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program);
@@ -35,7 +33,8 @@ public:
 
 	bool collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size) const;
 	bool collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size) const;
-	bool collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, int *posY) const;
+	bool collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size) const;
+	bool collisionMoveUp(const glm::ivec2& pos, const glm::ivec2& size) const;
 
 
 	bool isWalkable(int x, int y) const;

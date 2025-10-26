@@ -34,28 +34,41 @@ void Dog::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 	sprite->setPosition(glm::vec2(tileMapDispl.x + posEnemy.x,tileMapDispl.y + posEnemy.y));
 
 	posEnemy = glm::vec2(0, 0);
-	enemyState = PATROLLING;
+	state = PATROLLING;
+
 	facing = FACE_DOWN;
+	health = 2;
 }
 
 void Dog::update(int deltaTime)
 {
 	sprite->update(deltaTime);
 
-	switch (enemyState)
+	switch (state)
 	{
 	case PATROLLING:
 		patrol();
+
 		if (canSeePlayer()) {
-			enemyState = CHASING;
+			state = CHASING;
 			updatePathToPlayer();
 		}
 		break;
 	case CHASING:
 		chase(deltaTime);
+		if (glm::distance(posEnemy, glm::vec2(player->getPosition())) < 32.f) {
+			state = ATTACKING;
+		}
+		break;
+	case ATTACKING: 
+		attack(deltaTime);
 		break;
 	case RETURNING:
 		patrol();
+		break;
+
+	case DEAD: 
+
 		break;
 	}
 	sprite->setPosition(glm::vec2(tileMapDispl.x + posEnemy.x,
@@ -77,22 +90,43 @@ void Dog::changeDirAnim(glm::vec2 dir) {
 		sprite->changeAnimation(newAnim);
 }
 
+void Dog::stopMovingAnim() {
+}
+
 void Dog::attack(int deltaTime)
 {
 	if (!player) return;
 
-	//shootCooldown -= deltaTime;
-	//if (shootCooldown <= 0) {
-	//	shootCooldown = shootRate;
+	glm::vec2 playerPos = player->getPosition();
+	glm::vec2 diff = playerPos - posEnemy;
+	float distance = glm::length(diff);
 
-	//	// --- Crear proyectil ---
-	//	glm::vec2 dir = glm::normalize(player->getPosition() - posEnemy);
-	//	glm::vec2 bulletPos = posEnemy + dir * 16.f; // sale desde frente del enemigo
+	// Si está lejos, deja de atacar
+	if (distance > biteRange) {
+		state = CHASING;
+		return;
+	}
 
-	//	isShooting = true;
-	//	//sprite->changeAnimation(ENEMY_ATTACK);
-	//}
-	//else {
-	//	isShooting = false;
-	//}
+	// Actualizar cooldown de ataque
+	if (attackCooldown > 0)
+		attackCooldown -= deltaTime;
+
+	if (attackCooldown <= 0)
+	{
+		// Daño al jugadorasw
+		player->takeDamage(damage);
+		attackCooldown = 1000; // 1 segundo de cooldown
+
+		// Puedes poner aquí una animación de ataque
+		switch (facing)
+		{
+		case FACE_LEFT:  sprite->changeAnimation(DOG_MOVE_LEFT); break;
+		case FACE_RIGHT: sprite->changeAnimation(DOG_MOVE_RIGHT); break;
+		case FACE_UP:    sprite->changeAnimation(DOG_MOVE_UP); break;
+		case FACE_DOWN:  sprite->changeAnimation(DOG_MOVE_DOWN); break;
+		}
+
+		// Pequeño empuje visual o movimiento de ataque (opcional)
+		posEnemy += glm::normalize(diff) * 4.f;
+	}
 }

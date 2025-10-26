@@ -6,16 +6,36 @@ class Guard :
 public: 
     void init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram) override;
 	void update(int deltaTime) override;
-	
 
+	glm::ivec2 getSize() const { return glm::ivec2(16, 32); } 
+
+	
 private:
-	/*bool bJumping;
-	glm::ivec2 tileMapDispl, posEnemy;
-	int jumpAngle, startY;
-	Texture spritesheet;
-	Sprite* sprite;
-	TileMap* map;*/
+
+	enum GuardAnim {
+		GUARD_STAND_LEFT,
+		GUARD_STAND_RIGHT,
+		GUARD_STAND_UP,
+		GUARD_STAND_DOWN,
+		GUARD_MOVE_LEFT,
+		GUARD_MOVE_RIGHT,
+		GUARD_MOVE_UP,
+		GUARD_MOVE_DOWN,
+		GUARD_ATACCK,
+		GUARD_DIE
+	};
+
+	enum GuardState {
+		PATROLLING, 
+		ALERTED,
+		CHASING, RETURNING, 
+		ATTACKING, 
+		DIED
+	} state;
 
 	void attack(int deltaTime) override;
+	void stopMovingAnim() override;
+	void changeDirAnim(glm::vec2 dir) override;
+	
 };
 

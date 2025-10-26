@@ -5,10 +5,8 @@ class Dog : public Enemy
 public: 
 	void init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram) override;
 	void update(int deltaTime) override;
-
+	glm::ivec2 getSize() { return glm::ivec2(32, 32); };
 	
-
-
 private:
 	enum DogAnim {
 		DOG_IDLE,
@@ -18,11 +16,22 @@ private:
 		DOG_MOVE_RIGHT
 	};
 
-	Facing facing;
+	enum DogState{
+		PATROLLING,
+		CHASING,
+		ATTACKING,
+		RETURNING, 
+		DEAD
+	};
 
+	DogState state;
 
 	void attack(int deltaTime) override;
-
 	void changeDirAnim(glm::vec2 dir) override;
+	void stopMovingAnim() override;
+
+	float biteRange = 32.f;   // rango de mordida
+	int damage = 1;
+	int attackCooldown = 0;
 };
 
