@@ -5,7 +5,6 @@ void Dog::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 {
 	spritesheet.loadFromFile("images/dog.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	sprite = Sprite::createSprite(glm::ivec2(32, 32), glm::vec2(0.5, 0.2), &spritesheet, &shaderProgram);
-	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posEnemy.x), float(tileMapDispl.y + posEnemy.y)));
 
 	sprite->setNumberAnimations(5);
 
@@ -31,9 +30,8 @@ void Dog::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 	sprite->addKeyframe(DOG_MOVE_RIGHT, glm::vec2(0.5f, 0.8f));
 
 	tileMapDispl = tileMapPos;
-
 	posEnemy = glm::vec2(0, 0);
-	sprite->setPosition(glm::vec2(tileMapDispl.x + posEnemy.x,tileMapDispl.y + posEnemy.y));
+	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posEnemy.x), float(tileMapDispl.y + posEnemy.y)));
 
 	
 	state = PATROLLING;

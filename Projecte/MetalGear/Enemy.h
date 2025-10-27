@@ -9,9 +9,12 @@
 #include <memory>
 #include "Projectile.h"
 
+
 class Enemy
 {
 public:
+	enum Facing { FACE_LEFT, FACE_RIGHT, FACE_UP, FACE_DOWN };
+
 	virtual ~Enemy() {}
 
 	virtual void init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram) = 0;
@@ -21,6 +24,7 @@ public:
 	void setTileMap(TileMap* tileMap);
 	void setPosition(const glm::vec2& pos);
 	void setPlayer(Player* player);
+	void setFacing(Facing dir) { facing = dir; }
 
 	glm::vec2 getPosition() const { return posEnemy; }
 	virtual glm::ivec2 getSize() { return glm::ivec2(16, 32); };
@@ -32,13 +36,10 @@ public:
 	bool toRemove = false;
 
 	virtual bool attack(int deltaTime) { return false; };
-
 	virtual int getDamage() const { return damage; };
 	
 
 protected:
-	enum Facing { FACE_LEFT, FACE_RIGHT, FACE_UP, FACE_DOWN };
-
 	// Posición y entorno
 	glm::ivec2 tileMapDispl;
 	glm::vec2 posEnemy;

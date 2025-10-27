@@ -3,11 +3,6 @@
 class Dog : public Enemy
 {
 public: 
-	void init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram) override;
-	void update(int deltaTime) override;
-	glm::ivec2 getSize() { return glm::ivec2(32, 32); };
-	
-private:
 	enum DogAnim {
 		DOG_IDLE,
 		DOG_MOVE_UP,
@@ -16,14 +11,20 @@ private:
 		DOG_MOVE_RIGHT
 	};
 
-	enum DogState{
+	enum DogState {
 		PATROLLING,
 		CHASING,
 		ATTACKING,
-		RETURNING, 
+		RETURNING,
 		DEAD
 	};
 
+	void init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram) override;
+	void update(int deltaTime) override;
+	glm::ivec2 getSize() { return glm::ivec2(32, 32); };
+	
+private:
+	
 	DogState state = PATROLLING;
 
 	bool attack(int deltaTime) override;

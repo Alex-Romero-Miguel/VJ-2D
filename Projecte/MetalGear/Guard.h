@@ -4,13 +4,6 @@ class Guard :
     public Enemy
 {
 public: 
-    void init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram) override;
-	void update(int deltaTime) override;
-
-	glm::ivec2 getSize() const { return glm::ivec2(16, 32); } 
-
-	
-private:
 
 	enum GuardAnim {
 		GUARD_STAND_LEFT,
@@ -22,7 +15,7 @@ private:
 		GUARD_MOVE_UP,
 		GUARD_MOVE_DOWN,
 		GUARD_ATACCK,
-		GUARD_DIE
+		GUARD_DEAD
 	};
 
 	enum GuardState {
@@ -30,8 +23,18 @@ private:
 		ALERTED,
 		CHASING, RETURNING,
 		ATTACKING,
-		DIED
+		DEAD
 	};
+
+    void init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram) override;
+	void update(int deltaTime) override;
+
+	glm::ivec2 getSize() const { return glm::ivec2(16, 32); } 
+
+	
+private:
+
+	
 
 
 	GuardState state = PATROLLING;
