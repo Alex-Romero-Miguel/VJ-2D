@@ -78,6 +78,10 @@ bool TileMap::loadLevel(const string &levelFile)
     sstream.clear(); sstream.str(line);
     sstream >> tilesheetSize.x >> tilesheetSize.y;
 
+	std::getline(fin, line);
+    sstream.clear(); sstream.str(line);
+	sstream >> lastWalkable;
+
     tileTexSize = glm::vec2(1.f / tilesheetSize.x, 1.f / tilesheetSize.y);
 	
 	map = new int[mapSize.x * mapSize.y];
