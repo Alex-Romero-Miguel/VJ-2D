@@ -1,7 +1,15 @@
 {
   "ExpandedNodes": [
+<<<<<<< HEAD
     ""
   ],
   "SelectedNode": "\\MetalGear.sln",
+=======
+    "",
+    "\\Projecte",
+    "\\Projecte\\MetalGear"
+  ],
+  "SelectedNode": "\\Projecte\\MetalGear.sln",
+>>>>>>> origin/main
   "PreviewInSolutionExplorer": false
 }

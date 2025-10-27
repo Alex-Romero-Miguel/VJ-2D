@@ -1,3 +1,8 @@
+<<<<<<< HEAD
 ﻿  Camera.cpp
 SOIL.lib(image_helper.obj) : warning LNK4099: no se encontró PDB '' con 'SOIL.lib(image_helper.obj)' o en ''; se vinculará el objeto sin tener en cuenta información de depuración
   MetalGear.vcxproj -> F:\VJ\VJ-2D\Projecte\Debug\MetalGear.exe
+=======
+﻿  TileMap.cpp
+  MetalGear.vcxproj -> C:\Users\ARM\Documents\GitHub\VJ-2D\Projecte\Debug\MetalGear.exe
+>>>>>>> origin/main
