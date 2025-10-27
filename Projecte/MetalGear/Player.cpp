@@ -5,16 +5,6 @@
 #include "Game.h"
 
 
-enum PlayerAnims
-{
-	STAND_LEFT, STAND_RIGHT, STAND_UP, STAND_DOWN, 
-	MOVE_LEFT, MOVE_RIGHT, MOVE_UP, MOVE_DOWN,
-	PUNCH_LEFT, PUNCH_RIGHT, PUNCH_UP, PUNCH_DOWN
-};
-
-
-
-
 void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 {
 	bJumping = false;
@@ -23,60 +13,62 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 	sprite = Sprite::createSprite(glm::ivec2(16, 32), glm::vec2(0.125, 0.125), &spritesheet, &shaderProgram);
 	sprite->setNumberAnimations(12);
 	
-		sprite->setAnimationSpeed(STAND_LEFT, 8);
-		sprite->addKeyframe(STAND_LEFT, glm::vec2(0.25f, 0.0f));
+	sprite->setAnimationSpeed(STAND_LEFT, 8);
+	sprite->addKeyframe(STAND_LEFT, glm::vec2(0.25f, 0.0f));
 		
-		sprite->setAnimationSpeed(STAND_RIGHT, 8);
-		sprite->addKeyframe(STAND_RIGHT, glm::vec2(0.375f, 0.0f));
+	sprite->setAnimationSpeed(STAND_RIGHT, 8);
+	sprite->addKeyframe(STAND_RIGHT, glm::vec2(0.375f, 0.0f));
 		
-		sprite->setAnimationSpeed(STAND_UP, 8);
-		sprite->addKeyframe(STAND_UP, glm::vec2(0.125f, 0.f));
+	sprite->setAnimationSpeed(STAND_UP, 8);
+	sprite->addKeyframe(STAND_UP, glm::vec2(0.125f, 0.f));
 
-		sprite->setAnimationSpeed(STAND_DOWN, 8);
-		sprite->addKeyframe(STAND_DOWN, glm::vec2(0.0f, 0.0f));
+	sprite->setAnimationSpeed(STAND_DOWN, 8);
+	sprite->addKeyframe(STAND_DOWN, glm::vec2(0.0f, 0.0f));
 
-		sprite->setAnimationSpeed(MOVE_LEFT, 8);
-		sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.25f, 0.f));
-		sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.5f, 0.125f));
-		sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.625f, 0.125f));
+	sprite->setAnimationSpeed(MOVE_LEFT, 8);
+	sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.25f, 0.f));
+	sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.5f, 0.125f));
+	sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.625f, 0.125f));
 		
-		sprite->setAnimationSpeed(MOVE_RIGHT, 8);
-		sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.375, 0.f));
-		sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.75, 0.125f));
-		sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.875, 0.125f));
+	sprite->setAnimationSpeed(MOVE_RIGHT, 8);
+	sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.375, 0.f));
+	sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.75, 0.125f));
+	sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.875, 0.125f));
 
-		sprite->setAnimationSpeed(MOVE_UP, 8);
-		sprite->addKeyframe(MOVE_UP, glm::vec2(0.125f, 0.f));
-		sprite->addKeyframe(MOVE_UP, glm::vec2(0.25f, 0.125f));
-		sprite->addKeyframe(MOVE_UP, glm::vec2(0.375f, 0.125f));
+	sprite->setAnimationSpeed(MOVE_UP, 8);
+	sprite->addKeyframe(MOVE_UP, glm::vec2(0.125f, 0.f));
+	sprite->addKeyframe(MOVE_UP, glm::vec2(0.25f, 0.125f));
+	sprite->addKeyframe(MOVE_UP, glm::vec2(0.375f, 0.125f));
 
-		sprite->setAnimationSpeed(MOVE_DOWN, 8);
-		sprite->addKeyframe(MOVE_DOWN, glm::vec2(0.f, 0.f));
-		sprite->addKeyframe(MOVE_DOWN, glm::vec2(0.0f, 0.125f));
-		sprite->addKeyframe(MOVE_DOWN, glm::vec2(0.125f, 0.125f));
+	sprite->setAnimationSpeed(MOVE_DOWN, 8);
+	sprite->addKeyframe(MOVE_DOWN, glm::vec2(0.f, 0.f));
+	sprite->addKeyframe(MOVE_DOWN, glm::vec2(0.0f, 0.125f));
+	sprite->addKeyframe(MOVE_DOWN, glm::vec2(0.125f, 0.125f));
 
 
-		sprite->setAnimationSpeed(PUNCH_LEFT, 12);
-		sprite->addKeyframe(PUNCH_LEFT, glm::vec2(0.25f, 0.0f));
-		sprite->addKeyframe(PUNCH_LEFT, glm::vec2(0.25f, 0.5f));
+	sprite->setAnimationSpeed(PUNCH_LEFT, 12);
+	sprite->addKeyframe(PUNCH_LEFT, glm::vec2(0.25f, 0.0f));
+	sprite->addKeyframe(PUNCH_LEFT, glm::vec2(0.25f, 0.5f));
 
-		sprite->setAnimationSpeed(PUNCH_RIGHT, 12);
-		sprite->addKeyframe(PUNCH_RIGHT, glm::vec2(0.375f, 0.0f));
-		sprite->addKeyframe(PUNCH_RIGHT, glm::vec2(0.375f, 0.5f));
+	sprite->setAnimationSpeed(PUNCH_RIGHT, 12);
+	sprite->addKeyframe(PUNCH_RIGHT, glm::vec2(0.375f, 0.0f));
+	sprite->addKeyframe(PUNCH_RIGHT, glm::vec2(0.375f, 0.5f));
 
-		sprite->setAnimationSpeed(PUNCH_UP, 12);
-		sprite->addKeyframe(PUNCH_UP, glm::vec2(0.125f, 0.0f));
-		sprite->addKeyframe(PUNCH_UP, glm::vec2(0.125f, 0.5f));
+	sprite->setAnimationSpeed(PUNCH_UP, 12);
+	sprite->addKeyframe(PUNCH_UP, glm::vec2(0.125f, 0.0f));
+	sprite->addKeyframe(PUNCH_UP, glm::vec2(0.125f, 0.5f));
 
-		sprite->setAnimationSpeed(PUNCH_DOWN, 12);
-		sprite->addKeyframe(PUNCH_DOWN, glm::vec2(0.0f, 0.0f));
-		sprite->addKeyframe(PUNCH_DOWN, glm::vec2(0.0f, 0.5f));
+	sprite->setAnimationSpeed(PUNCH_DOWN, 12);
+	sprite->addKeyframe(PUNCH_DOWN, glm::vec2(0.0f, 0.0f));
+	sprite->addKeyframe(PUNCH_DOWN, glm::vec2(0.0f, 0.5f));
 		
 	sprite->changeAnimation(0);
 	tileMapDispl = tileMapPos;
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
 
 	facing = FACE_LEFT;
+
+	health = STARTING_HEALTH;
 }
 
 void Player::update(int deltaTime)
@@ -217,5 +209,22 @@ void Player::setPosition(const glm::vec2 &pos)
 }
 
 
+void Player::takeDamage(int amount)
+{
+	health -= amount;
+	if (health < 0) {
+		health = 0; // Evita que la vida sea negativa
+	}
+}
+
+bool Player::isDead() const
+{
+	return health <= 0;
+}
+
+int Player::getHealth() const
+{
+	return health;
+}
 
 
