@@ -26,14 +26,17 @@ private:
 	};
 
 	enum GuardState {
-		PATROLLING, 
+		PATROLLING,
 		ALERTED,
-		CHASING, RETURNING, 
-		ATTACKING, 
+		CHASING, RETURNING,
+		ATTACKING,
 		DIED
-	} state;
+	};
 
-	void attack(int deltaTime) override;
+
+	GuardState state = PATROLLING;
+
+	bool attack(int deltaTime) override;
 	void stopMovingAnim() override;
 	void changeDirAnim(glm::vec2 dir) override;
 	

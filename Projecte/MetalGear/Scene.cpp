@@ -74,15 +74,140 @@ void Scene::init()
 
 	projection = glm::ortho(0.f, float(SCREEN_WIDTH), float(SCREEN_HEIGHT), 0.f);
 	currentTime = 0.0f;
+	deathTimer = 1000;
 }
+
+
+void Scene::restartGame()
+{
+	// Borrar enemigos
+	for (Enemy* enemy : enemies)
+		delete enemy;
+	enemies.clear();
+
+	delete player;
+	delete map;
+
+	// Reiniciar todo igual que en init()
+	init();
+}
+
+bool Scene::checkCollision(const glm::ivec4& a, const glm::ivec4& b)
+{
+	return (a.x < b.x + b.z &&
+		a.x + a.z > b.x &&
+		a.y < b.y + b.w &&
+		a.y + a.w > b.y);
+}
+
+//void Scene::update(int deltaTime)
+//{
+//	currentTime += deltaTime;
+//	
+//	if (player->isDead()) {
+//		deathTimer -= deltaTime;
+//		if (deathTimer <= 0)
+//			restartGame();
+//		return;
+//	}
+//
+//	player->update(deltaTime);
+//
+//	glm::ivec4 hitbox = player->getPunchHitbox();
+//	if (hitbox.z > 0 && hitbox.w > 0) {
+//		for (Enemy* enemy : enemies) {
+//			if (enemy->isDead()) continue;
+//			glm::vec2 epos = enemy->getPosition();
+//			glm::ivec2 esize = enemy->getSize();
+//			if (checkCollision(hitbox, glm::ivec4(epos.x, epos.y, esize.x, esize.y))) {
+//				enemy->takeDamage(1);
+//			}
+//		}
+//	}
+//
+//	for (Enemy* enemy : enemies) {
+//		enemy->update(deltaTime);
+//
+//		// Comprobamos colisión de ataque o contacto
+//		if (checkCollision(
+//			glm::ivec4(player->getPosition().x, player->getPosition().y, player->getSize().x, player->getSize().y),
+//			glm::ivec4(enemy->getPosition().x, enemy->getPosition().y, enemy->getSize().x, enemy->getSize().y)))
+//		{
+//			// Si hay contacto y el enemigo ataca, y no hay godMode...
+//			if (enemy->attack(deltaTime)) {
+//				if (!godMode)
+//					player->takeDamage(enemy->getDamage());
+//			}
+//		}
+//	}
+//
+//
+//	for (auto it = enemies.begin(); it != enemies.end();) {
+//		Enemy* enemy = *it;
+//		enemy->update(deltaTime);
+//		if (enemy->toRemove) {
+//			delete enemy;
+//			it = enemies.erase(it);
+//		}
+//		else {
+//			++it;
+//		}
+//	}
+//}
 
 void Scene::update(int deltaTime)
 {
 	currentTime += deltaTime;
+
+	// 1. Comprobamos si el jugador está muerto
+	if (player->isDead()) {
+		deathTimer -= deltaTime;
+		if (deathTimer <= 0)
+			restartGame();
+		return;
+	}
+
+	// 2. Actualizamos al jugador
 	player->update(deltaTime);
-	for (Enemy* enemy : enemies)
-	{
+
+	// 3. Golpe del jugador (ataque cuerpo a cuerpo)
+	glm::ivec4 hitbox = player->getPunchHitbox();
+	if (hitbox.z > 0 && hitbox.w > 0) {
+		for (Enemy* enemy : enemies) {
+			if (enemy->isDead()) continue;
+
+			glm::vec2 epos = enemy->getPosition();
+			glm::ivec2 esize = enemy->getSize();
+			if (checkCollision(hitbox, glm::ivec4(epos.x, epos.y, esize.x, esize.y))) {
+				std::cout << "Golpeando enemigo en " << typeid(*enemy).name() << std::endl;
+				enemy->takeDamage(1);
+			}
+		}
+	}
+
+	// 4. Actualizamos enemigos y comprobamos ataques
+	for (auto it = enemies.begin(); it != enemies.end();) {
+		Enemy* enemy = *it;
 		enemy->update(deltaTime);
+
+		// Comprobamos colisión de ataque o contacto
+		if (!enemy->isDead() && checkCollision(
+			glm::ivec4(player->getPosition().x, player->getPosition().y, player->getSize().x, player->getSize().y),
+			glm::ivec4(enemy->getPosition().x, enemy->getPosition().y, enemy->getSize().x, enemy->getSize().y)))
+		{
+			// Si hay contacto y el enemigo ataca, y no hay godMode...
+			if (enemy->attack(deltaTime) && !godMode)
+				player->takeDamage(enemy->getDamage());
+		}
+
+		// Eliminamos enemigos muertos (tras su animación, si tienen)
+		if (enemy->toRemove) {
+			delete enemy;
+			it = enemies.erase(it);
+		}
+		else {
+			++it;
+		}
 	}
 }
 
@@ -97,11 +222,13 @@ void Scene::render()
 	texProgram.setUniformMatrix4f("modelview", modelview);
 	texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
 	map->render();
-	player->render();
+	
 	for (Enemy* enemy : enemies)
 	{
 		enemy->render();
 	}
+
+	player->render();
 }
 
 void Scene::initShaders()
@@ -134,5 +261,32 @@ void Scene::initShaders()
 	fShader.free();
 }
 
+
+
+void Scene::toggleGodMode() {
+	godMode = !godMode;
+	std::cout << (godMode ? "God mode ON" : "God mode OFF") << std::endl;
+}
+
+void Scene::fullHeal() {
+	if (player) {
+		player->takeDamage(-9999); // o directamente restaurar
+	}
+}
+
+void Scene::giveAllItems() {
+	std::cout << "Todos los ítems añadidos (placeholder)" << std::endl;
+	// Aquí puedes añadir objetos al inventario si ya tienes esa mecánica.
+}
+
+void Scene::teleportToInterior() {
+	if (!map || !player) return;
+	player->setPosition(glm::vec2(5 * map->getTileSize(), 5 * map->getTileSize()));
+}
+
+void Scene::teleportToBoss() {
+	if (!map || !player) return;
+	player->setPosition(glm::vec2(40 * map->getTileSize(), 10 * map->getTileSize()));
+}
 
 

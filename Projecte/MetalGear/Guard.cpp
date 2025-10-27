@@ -53,6 +53,33 @@ void Guard::update(int deltaTime)
 {
 	sprite->update(deltaTime);
 
+	if (dead) {
+		deadTimer -= deltaTime;
+		if (deadTimer <= 0) {
+			toRemove = true; // marcar para borrar
+		}
+		return;
+	}
+
+	if (knockUp) {
+		verticalVel += 0.0012f * deltaTime; // gravedad
+		verticalPos += verticalVel * deltaTime;
+
+		if (verticalPos > 0.f) {
+			verticalPos = 0.f;
+			knockUp = false;
+		}
+
+		sprite->setPosition(glm::vec2(tileMapDispl.x + posEnemy.x,
+			tileMapDispl.y + posEnemy.y + verticalPos));
+		return; // se detiene el resto de la IA mientras cae
+	}
+
+	if (isHurt) {
+		hurtTimer -= deltaTime;
+		if (hurtTimer <= 0) isHurt = false;
+	}
+
 	switch (state)
 	{
 	case PATROLLING:
@@ -74,10 +101,6 @@ void Guard::update(int deltaTime)
 }
 
 
-void Guard::attack(int deltaTime)
-{
-	if (!player) return;
-}
 
 void Guard::stopMovingAnim() {
 	switch (facing) {
@@ -102,4 +125,9 @@ void Guard::changeDirAnim(glm::vec2 dir) {
 
 	if (sprite->animation() != newAnim)
 		sprite->changeAnimation(newAnim);
+}
+
+bool Guard::attack(int deltaTime)
+{
+	return false;
 }

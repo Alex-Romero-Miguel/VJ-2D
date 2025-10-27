@@ -24,14 +24,16 @@ private:
 		DEAD
 	};
 
-	DogState state;
+	DogState state = PATROLLING;
 
-	void attack(int deltaTime) override;
+	bool attack(int deltaTime) override;
 	void changeDirAnim(glm::vec2 dir) override;
 	void stopMovingAnim() override;
 
 	float biteRange = 32.f;   // rango de mordida
 	int damage = 1;
 	int attackCooldown = 0;
+
+	float deadTimer;
 };
 

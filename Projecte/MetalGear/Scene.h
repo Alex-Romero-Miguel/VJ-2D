@@ -21,8 +21,22 @@ public:
 	~Scene();
 
 	void init();
+	void restartGame();
 	void update(int deltaTime);
 	void render();
+
+
+	bool checkCollision(const glm::ivec4& a, const glm::ivec4& b);
+
+
+	void toggleGodMode();
+	void fullHeal();
+	void giveAllItems();
+	void teleportToInterior();
+	void teleportToBoss();
+
+	bool isGodMode() const { return godMode; }
+
 
 private:
 	void initShaders();
@@ -31,9 +45,15 @@ private:
 	TileMap *map;
 	Player *player;
 	ShaderProgram texProgram;
-	float currentTime;
+	float currentTime = 0;
 	glm::mat4 projection;
 	std::vector<Enemy*> enemies;
+
+	int deathTimer = 1000; 
+	bool godMode = false;
+
+
+
 };
 
 

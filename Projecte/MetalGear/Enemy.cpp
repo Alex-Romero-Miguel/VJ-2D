@@ -148,7 +148,29 @@ void Enemy::changeDirAnim(glm::vec2 dir) {
 }
 
 
-void Enemy::attack(int deltaTime)
-{
 
+void Enemy::takeDamage(int amount) {
+
+	if (isHurt) return;
+
+	health -= amount;
+	isHurt = true;
+	hurtTimer = 300; // ms de invulnerabilidad
+
+
+	knockUp = true;
+	verticalVel = -0.1f;
+	verticalPos = 0.f;
+
+
+	if (health <= 0) {
+		dead = true;
+		deadTimer = 500;
+	}
+
+	//cout << health << endl;
+}
+
+bool Enemy::isDead()const {
+	return dead;
 }

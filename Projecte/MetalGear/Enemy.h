@@ -24,6 +24,16 @@ public:
 
 	glm::vec2 getPosition() const { return posEnemy; }
 	virtual glm::ivec2 getSize() { return glm::ivec2(16, 32); };
+
+
+	void takeDamage(int amount);
+	bool isDead() const;
+
+	bool toRemove = false;
+
+	virtual bool attack(int deltaTime) { return false; };
+
+	virtual int getDamage() const { return damage; };
 	
 
 protected:
@@ -50,6 +60,19 @@ protected:
 
 	// Estado y atributos 
 	int health = 3;
+	bool dead = false; 
+	bool isHurt = false;
+	int hurtTimer = 0;
+
+	bool knockUp = false;
+	float verticalVel = 0.f;
+	float verticalPos = 0.f;
+
+	int damage = 1;
+
+	
+	int deadTimer = 0;
+
 	float visionRange = 300.f; // rango de visión
 	float visionAngle = 45.f;  // en grados
 	float attackRange = 100.f;
@@ -61,7 +84,8 @@ protected:
 	void chase(int deltaTime);
 	void updatePathToPlayer();
 	void followPath(int deltaTime);
-	virtual void attack(int deltaTime);
+	
+
 
 	// Animaciones
 	virtual void stopMovingAnim();

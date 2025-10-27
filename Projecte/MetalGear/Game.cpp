@@ -27,20 +27,21 @@ void Game::keyPressed(int key)
 {
 	if(key == GLFW_KEY_ESCAPE) // Escape code
 		bPlay = false;
-	//else if (key == GLFW_KEY_G) { // God Mode
+	else if (key == GLFW_KEY_G) { // God Mode
+		godMode = !godMode;
 
-	//}
-	//else if (key == GLFW_KEY_H) { // Heal, restaurar vida
+	}
+	else if (key == GLFW_KEY_H) { // Heal, restaurar vida
 
-	//}
-	//else if (key == GLFW_KEY_I) { // Item, Añadir todos los ítems
+	}
+	else if (key == GLFW_KEY_I) { // Item, Añadir todos los ítems
 
-	//}
-	//else if (key == GLFW_KEY_K) { // Teleportar a primer mapa interior
-	//}
-	//else if (key == GLFW_KEY_B) { // teleportar al Boss
+	}
+	else if (key == GLFW_KEY_K) { // Teleportar a primer mapa interior
+	}
+	else if (key == GLFW_KEY_B) { // teleportar al Boss
 
-	//}
+	}
 
 	keys[key] = true;
 

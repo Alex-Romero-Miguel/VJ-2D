@@ -31,12 +31,17 @@ public:
 	void setTileMap(TileMap *tileMap);
 	void setPosition(const glm::vec2 &pos);
 
+	void takeDamage(int amount);
+
 	glm::ivec2 getPosition() const { return posPlayer; }
 	glm::ivec2 getSize() const { return glm::ivec2(16, 32); }
+	glm::ivec4 getPunchHitbox() const;
 
-	void takeDamage(int amount);
+	
+
 	bool isDead() const;
 	int getHealth() const;
+	
 
 	
 private:
@@ -55,12 +60,16 @@ private:
 	int  punchElapsedMs = 0;
 	int  punchDurationMs = 250;
 
+	
+
 	bool isHurt = false;
 	int hurtTimer = 0;
 	float hurtBlinkTime = 0.f;
 
+	bool dead = false;
+
 	
-	static const int STARTING_HEALTH = 100;
+	static const int STARTING_HEALTH = 3;
 	int health; // Vida actual del jugador
 };
 

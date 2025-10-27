@@ -46,6 +46,8 @@ private:
 							    // we can have access at any time
 	Scene scene;
 
+	bool godMode = false;
+
 };
 
 

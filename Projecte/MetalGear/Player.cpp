@@ -82,6 +82,8 @@ void Player::update(int deltaTime)
 {
 	sprite->update(deltaTime);
 
+	if (dead) sprite->changeAnimation(DEAD);
+
 	bool zDown = Game::instance().getKey(GLFW_KEY_Z);
 
 	if (punching) {
@@ -207,7 +209,7 @@ void Player::update(int deltaTime)
 
 	zWasDown = zDown;
 
-	//std::cout << "Health: " << health << std::endl;
+	std::cout << "Health: " << health << std::endl;
 	
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
 }
@@ -251,10 +253,12 @@ void Player::setPosition(const glm::vec2 &pos)
 
 void Player::takeDamage(int amount)
 {
+	
 	if (isHurt) return; 
 	health -= amount;
 	if (health < 0) {
 		health = 0;
+		dead = true;
 	}
 	isHurt = true;
 	hurtTimer = 500.f;
@@ -271,3 +275,18 @@ int Player::getHealth() const
 }
 
 
+glm::ivec4 Player::getPunchHitbox() const {
+	if (!punching) return glm::ivec4(0, 0, 0, 0);
+
+	glm::ivec2 pos = posPlayer;
+	glm::ivec2 size = getSize();
+	int range = 10; // distancia del golpe
+
+	switch (facing) {
+	case FACE_LEFT:  return glm::ivec4(pos.x - range, pos.y, range, size.y);
+	case FACE_RIGHT: return glm::ivec4(pos.x + size.x, pos.y, range, size.y);
+	case FACE_UP:    return glm::ivec4(pos.x, pos.y - range, size.x, range);
+	case FACE_DOWN:  return glm::ivec4(pos.x, pos.y + size.y, size.x, range);
+	}
+	return glm::ivec4(0, 0, 0, 0);
+}
