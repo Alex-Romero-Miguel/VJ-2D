@@ -5,6 +5,7 @@
 #include "Game.h"
 #include "Guard.h"
 #include "Dog.h"
+#include "Camera.h"
 
 
 #define SCREEN_X 32
@@ -63,6 +64,17 @@ void Scene::init()
 
 		enemies.push_back(enemy); 
 	}
+
+	Camera* camera = new Camera();
+	camera->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
+	camera->setPosition(glm::vec2(5 * map->getTileSize(),
+		10 * map->getTileSize()));
+	camera->setPatrolRoute(glm::ivec2(5 * map->getTileSize(), 10 * map->getTileSize()),
+		glm::ivec2(10 * map->getTileSize(), 10 * map->getTileSize()));
+	camera->setTileMap(map);
+	camera->setPlayer(player);
+	enemies.push_back(camera);
+
 
 	Dog* dog = new Dog();
 	dog->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);

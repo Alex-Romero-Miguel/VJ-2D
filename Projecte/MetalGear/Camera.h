@@ -28,20 +28,21 @@ public:
 
 	glm::ivec2 getSize() const { return glm::ivec2(16, 16); }
 
-
 	void setFacing(Facing dir);
-
-
-	void setMovable();
-
+	void setPatrolRoute(const glm::ivec2& start, const glm::ivec2& end);
 
 private: 
 	
-	CameraState state = PATROLLING;
+	CameraState state;
 
-	bool movable;
-	glm::ivec2 moveDir;  // dirección de movimiento (si movable = true)
-	int moveSpeed;
+	glm::ivec2 patrolStart, patrolEnd; // opcional, si la cámara patrulla
+	glm::vec2 moveDir;
+
+	glm::vec2 currentPatrolTarget;
+
+	float moveSpeed;
+
+	bool movable; // por defecto las cámaras no se mueven
 	
 
 };
