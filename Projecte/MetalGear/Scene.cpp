@@ -100,60 +100,7 @@ bool Scene::checkCollision(const glm::ivec4& a, const glm::ivec4& b)
 		a.y + a.w > b.y);
 }
 
-//void Scene::update(int deltaTime)
-//{
-//	currentTime += deltaTime;
-//	
-//	if (player->isDead()) {
-//		deathTimer -= deltaTime;
-//		if (deathTimer <= 0)
-//			restartGame();
-//		return;
-//	}
-//
-//	player->update(deltaTime);
-//
-//	glm::ivec4 hitbox = player->getPunchHitbox();
-//	if (hitbox.z > 0 && hitbox.w > 0) {
-//		for (Enemy* enemy : enemies) {
-//			if (enemy->isDead()) continue;
-//			glm::vec2 epos = enemy->getPosition();
-//			glm::ivec2 esize = enemy->getSize();
-//			if (checkCollision(hitbox, glm::ivec4(epos.x, epos.y, esize.x, esize.y))) {
-//				enemy->takeDamage(1);
-//			}
-//		}
-//	}
-//
-//	for (Enemy* enemy : enemies) {
-//		enemy->update(deltaTime);
-//
-//		// Comprobamos colisión de ataque o contacto
-//		if (checkCollision(
-//			glm::ivec4(player->getPosition().x, player->getPosition().y, player->getSize().x, player->getSize().y),
-//			glm::ivec4(enemy->getPosition().x, enemy->getPosition().y, enemy->getSize().x, enemy->getSize().y)))
-//		{
-//			// Si hay contacto y el enemigo ataca, y no hay godMode...
-//			if (enemy->attack(deltaTime)) {
-//				if (!godMode)
-//					player->takeDamage(enemy->getDamage());
-//			}
-//		}
-//	}
-//
-//
-//	for (auto it = enemies.begin(); it != enemies.end();) {
-//		Enemy* enemy = *it;
-//		enemy->update(deltaTime);
-//		if (enemy->toRemove) {
-//			delete enemy;
-//			it = enemies.erase(it);
-//		}
-//		else {
-//			++it;
-//		}
-//	}
-//}
+
 
 void Scene::update(int deltaTime)
 {
@@ -270,7 +217,7 @@ void Scene::toggleGodMode() {
 
 void Scene::fullHeal() {
 	if (player) {
-		player->takeDamage(-9999); // o directamente restaurar
+		player->resetHealth();
 	}
 }
 
@@ -281,12 +228,12 @@ void Scene::giveAllItems() {
 
 void Scene::teleportToInterior() {
 	if (!map || !player) return;
-	player->setPosition(glm::vec2(5 * map->getTileSize(), 5 * map->getTileSize()));
+	//player->setPosition(glm::vec2(5 * map->getTileSize(), 5 * map->getTileSize()));
 }
 
 void Scene::teleportToBoss() {
 	if (!map || !player) return;
-	player->setPosition(glm::vec2(40 * map->getTileSize(), 10 * map->getTileSize()));
+	//player->setPosition(glm::vec2(40 * map->getTileSize(), 10 * map->getTileSize()));
 }
 
 

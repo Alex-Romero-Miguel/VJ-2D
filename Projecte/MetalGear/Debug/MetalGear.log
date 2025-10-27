@@ -1,4 +1,10 @@
 ﻿  Dog.cpp
+  Enemy.cpp
+  Game.cpp
+  Guard.cpp
+  Player.cpp
+F:\VJ\VJ-2D\Projecte\MetalGear\Player.cpp(264,14): warning C4244: '=': conversión de 'float' a 'int'; posible pérdida de datos
   Scene.cpp
+  main.cpp
   Generando código...
   MetalGear.vcxproj -> F:\VJ\VJ-2D\Projecte\Debug\MetalGear.exe
