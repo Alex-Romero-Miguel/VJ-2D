@@ -7,6 +7,7 @@
 #include "TileMap.h"
 #include "Player.h"
 #include "Enemy.h"
+#include "Projectile.h"
 
 
 // Scene contains all the entities of our game.
@@ -48,6 +49,7 @@ private:
 	glm::mat4 projection;
 	glm::vec2 cameraPos;
 	std::vector<Enemy*> enemies;
+	std::vector<Projectile*> projectiles;
 
 	int deathTimer = 1000; 
 	bool godMode = false;

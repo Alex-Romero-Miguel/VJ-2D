@@ -50,11 +50,13 @@ void Guard::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 
 	movable = true;
 
+	attackCooldown = 0;
 }
 
 void Guard::update(int deltaTime)
 {
 	sprite->update(deltaTime);
+	if (attackCooldown > 0) attackCooldown -= deltaTime;
 
 	if (dead) {
 		deadTimer -= deltaTime;
@@ -93,10 +95,19 @@ void Guard::update(int deltaTime)
 		}
 		break;
 	case CHASING:
-		chase(deltaTime);
+		if (glm::distance(posEnemy, glm::vec2(player->getPosition())) < attackRange) {
+			state = ATTACKING;
+		}
+		else chase(deltaTime);
+		
 		break;
-	case RETURNING:
-		//patrol();
+	case ATTACKING:
+		stopMovingAnim();
+
+		if (!canSeePlayer() || glm::distance(posEnemy, glm::vec2(player->getPosition())) > attackRange) {
+			state = CHASING;
+		}
+
 		break;
 	}
 	sprite->setPosition(glm::vec2(tileMapDispl.x + posEnemy.x,
@@ -128,10 +139,10 @@ void Guard::changeDirAnim(glm::vec2 dir) {
 		sprite->changeAnimation(newAnim);
 }
 
-bool Guard::attack(int deltaTime)
-{
-	return false;
-}
+//bool Guard::attack(int deltaTime)
+//{
+//	return false;
+//}
 
 void Guard::resetState(){
 	state = PATROLLING;
@@ -143,4 +154,15 @@ void Guard::resetState(){
 	posEnemy = patrolStart;
 	/*sprite->setPosition(glm::vec2(tileMapDispl.x + posEnemy.x,
 		tileMapDispl.y + posEnemy.y));*/
+}
+
+bool Guard::attack(int deltaTime)
+{
+	// Solo ataca si está en el estado correcto y el cooldown ha terminado
+	if (state == ATTACKING && attackCooldown <= 0)
+	{
+		attackCooldown = 2000; // Cooldown de 2 segundos
+		return true; // ¡Disparo exitoso!
+	}
+	return false; // No disparó
 }

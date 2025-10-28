@@ -230,9 +230,7 @@ void Player::render()
 	else {
 		shaderProgram->setUniform4f("tintColor", 1.0f, 1.0f, 1.0f, 1.0f);
 	}
-
 	sprite->render();
-
 	shaderProgram->setUniform4f("tintColor", 1.0f, 1.0f, 1.0f, 1.0f);
 }
 

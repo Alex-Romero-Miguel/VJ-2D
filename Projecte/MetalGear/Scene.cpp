@@ -33,6 +33,9 @@ Scene::~Scene()
 		delete enemy;
 	}
 	enemies.clear();
+
+	for (Projectile* p : projectiles) delete p;
+	projectiles.clear();
 }
 
 
@@ -50,6 +53,10 @@ void Scene::init()
 
 	loadLevel("levels/exterior.txt");
 	playerStartPos = glm::ivec2(15, 15);
+
+	
+
+
 
 	//loadLevel("levels/interior.txt", glm::ivec2(INIT_PLAYER_X_TILES, INIT_PLAYER_Y_TILES));
 
@@ -310,92 +317,31 @@ void Scene::update(int deltaTime)
 		// 5. Elimina al enemigo si está muerto y marcado para ser borrado
 		if (enemy->toRemove) {
 			delete enemy;
-			it = enemies.erase(it); // Si se borra, el iterador avanza automáticamente
-		}
-		else {
-			++it; // Si no se borra, avanza el iterador manualmente
-		}
-	}
-
-	//for (auto it = enemies.begin(); it != enemies.end();) {
-	//	Enemy* enemy = *it;
-
-	//	// --- COMPROBACIÓN DE ACTIVACIÓN ---
-	//	// Comprueba si el enemigo está en la pantalla actual
-	//	bool isOnScreen = (enemy->getPosition().x + enemy->getSize().x > cameraPos.x &&
-	//		enemy->getPosition().x < cameraPos.x + 256.f &&
-	//		enemy->getPosition().y + enemy->getSize().y > cameraPos.y &&
-	//		enemy->getPosition().y < cameraPos.y + 192.f);
-
-	//	// Si el enemigo está activo (en pantalla o hay alerta global), actualízalo.
-	//	/*if (isOnScreen || isGlobalAlert) {*/
-	//	if (isOnScreen){
-	//		enemy->update(deltaTime); // Ahora la llamada a update es más simple
-	//	}
-	//	else {
-	//		enemy->resetState();
-	//	}
-		//else {
-		//	//enemy->(); // Asegúrate de que tenga una animación de "quieto"
-		//}
-		// --- FIN DE LA COMPROBACIÓN ---
-
-
-		//// Comprobamos colisión de ataque o contacto (esta lógica puede ir dentro del if de arriba si prefieres)
-		//if (!enemy->isDead() && checkCollision(/*...*/))
-		//{
-		//	if (enemy->attack(deltaTime) && !godMode)
-		//		player->takeDamage(enemy->getDamage());
-		//}
-
-		// Eliminamos enemigos muertos
-		/*if (enemy->toRemove) {
-			delete enemy;
 			it = enemies.erase(it);
 		}
 		else {
 			++it;
-		}*/
-	
-	// Golpe del jugador 
-	//glm::ivec4 hitbox = player->getPunchHitbox();
-	//if (hitbox.z > 0 && hitbox.w > 0) {
-	//	for (Enemy* enemy : enemies) {
-	//		if (enemy->isDead()) continue;
+		}
+	}
 
-	//		glm::vec2 epos = enemy->getPosition();
-	//		glm::ivec2 esize = enemy->getSize();
-	//		if (checkCollision(hitbox, glm::ivec4(epos.x, epos.y, esize.x, esize.y))) {
-	//			std::cout << "Golpeando enemigo en " << typeid(*enemy).name() << std::endl;
-	//			enemy->takeDamage(1);
-	//		}
-	//	}
-	//}
+	for (auto it = projectiles.begin(); it != projectiles.end();) {
+		Projectile* p = *it;
+		p->update(deltaTime, map);
 
-	//// Actualizamos enemigos y comprobamos ataques
-	//for (auto it = enemies.begin(); it != enemies.end();) {
-	//	Enemy* enemy = *it;
-	//	//enemy->update(deltaTime);
+		// Comprueba colisión con el jugador
+		if (checkCollision(glm::ivec4(player->getPosition(), player->getSize()), glm::ivec4(p->getPosition(), p->getSize()))) {
+			if (!godMode) player->takeDamage(1);
+			p->toRemove = true; // Marca la bala para ser borrada
+		}
 
-	//	// Comprobamos colisión de ataque o contacto
-	//	if (!enemy->isDead() && checkCollision(
-	//		glm::ivec4(player->getPosition().x, player->getPosition().y, player->getSize().x, player->getSize().y),
-	//		glm::ivec4(enemy->getPosition().x, enemy->getPosition().y, enemy->getSize().x, enemy->getSize().y)))
-	//	{
-	//		// Si hay contacto y el enemigo ataca, y no hay godMode...
-	//		if (enemy->attack(deltaTime) && !godMode)
-	//			player->takeDamage(enemy->getDamage());
-	//	}
-
-	//	// Eliminamos enemigos muertos (tras su animación, si tienen)
-	//	if (enemy->toRemove) {
-	//		delete enemy;
-	//		it = enemies.erase(it);
-	//	}
-	//	else {
-	//		++it;
-	//	}
-	//}
+		if (p->toRemove) {
+			delete p;
+			it = projectiles.erase(it);
+		}
+		else {
+			++it;
+		}
+	}
 }
 
 void Scene::render()
@@ -426,6 +372,19 @@ void Scene::render()
 
 	player->render();
 
+	for (Projectile* p : projectiles) {
+		p->render();
+	}
+
+	//Projectile projectile = new Projectile();
+
+	{
+		auto* p = new Projectile();
+		// En coordenadas de mundo. Como la view usa -cameraPos, se verá en la esquina superior-izquierda del mundo.
+		p->init(glm::vec2(0.f, 0.f), glm::vec2(0.f, 0.f), texProgram);
+		projectiles.push_back(p);
+		p->render();
+	}
 }
 
 void Scene::initShaders()

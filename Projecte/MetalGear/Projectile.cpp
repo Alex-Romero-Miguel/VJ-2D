@@ -1,34 +1,45 @@
-//#include "Proyectile.h"
-//#include <glm/gtc/matrix_transform.hpp>
-//
-//Projectile::Projectile(const glm::vec2& startPos, const glm::vec2& dir, float spd, int dmg, TileMap* tilemap)
-//	: pos(startPos), direction(glm::normalize(dir)), speed(spd), damage(dmg), map(tilemap), alive(true) {}
-//
-//void Projectile::update(int deltaTime)
-//{
-//	if (!alive) return;
-//
-//	pos += direction * speed * float(deltaTime);
-//
-//	// Verificar colisión con el mapa
-//	if (map && map->collisionMoveLeft(pos, glm::ivec2(4, 4))
-//		|| map->collisionMoveRight(pos, glm::ivec2(4, 4))
-//		|| map->collisionMoveDown(pos, glm::ivec2(4, 4), nullptr, nullptr))
-//		//|| map->collisionMoveUp(pos, glm::ivec2(4, 4), nullptr, nullptr))
-//	{
-//		alive = false;
-//	}
-//}
-//
-//void Projectile::render()
-//{
-//	if (!alive) return;
-//	glColor3f(1.0f, 0.2f, 0.2f);
-//	glBegin(GL_QUADS);
-//	glVertex2f(pos.x, pos.y);
-//	glVertex2f(pos.x + 4, pos.y);
-//	glVertex2f(pos.x + 4, pos.y + 4);
-//	glVertex2f(pos.x, pos.y + 4);
-//	glEnd();
-//	glColor3f(1.f, 1.f, 1.f);
-//}
+#include "Projectile.h"
+
+
+void Projectile::init(const glm::vec2& pos, const glm::vec2& dir, ShaderProgram& shaderProgram)
+{
+	posProjectile = pos;
+	direction = dir;
+
+	spritesheet.loadFromFile("images/projectile.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	
+	sprite = Sprite::createSprite(glm::ivec2(8, 8), glm::vec2(1.0, 1.0), &spritesheet, &shaderProgram);
+
+	sprite->setNumberAnimations(1);
+	sprite->setAnimationSpeed(0, 8);
+	sprite->addKeyframe(0, glm::vec2(0.0f, 0.0f));
+
+	sprite->changeAnimation(0);
+
+	sprite->setPosition(posProjectile);
+
+}
+
+void Projectile::update(int deltaTime, TileMap* map)
+{
+	lifetime -= deltaTime;
+	if (lifetime <= 0) {
+		toRemove = true;
+		return;
+	}
+	posProjectile += direction * speed * float(deltaTime);
+
+	// Comprueba si choca con una pared
+	if (map->collisionMoveRight(posProjectile, getSize()) || map->collisionMoveLeft(posProjectile, getSize()) ||
+		map->collisionMoveUp(posProjectile, getSize()) || map->collisionMoveDown(posProjectile, getSize()))
+	{
+		toRemove = true;
+	}
+
+	sprite->setPosition(posProjectile);
+}
+
+void Projectile::render()
+{
+	sprite->render();
+}

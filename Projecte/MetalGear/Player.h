@@ -38,7 +38,6 @@ public:
 	glm::ivec2 getSize() const { return glm::ivec2(16, 32); }
 	glm::ivec4 getPunchHitbox() const;
 
-
 	bool isDead() const;
 	int getHealth() const;
 	
