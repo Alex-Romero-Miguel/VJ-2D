@@ -5,7 +5,7 @@
 void Camera::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram) {
 	spritesheet.loadFromFile("images/camera.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	sprite = Sprite::createSprite(glm::ivec2(16, 16), glm::vec2(0.5f, 0.25f), &spritesheet, &shaderProgram);
-	sprite->setNumberAnimations(5);
+	sprite->setNumberAnimations(8);
 
 	sprite->setAnimationSpeed(CAMERA_UP, 8);
 	sprite->addKeyframe(CAMERA_UP, glm::vec2(0.0f, 0.0f));
@@ -37,7 +37,7 @@ void Camera::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram) {
 
 	moveDir = glm::ivec2(1, 0);
 	moveSpeed = 1;
-	movable = false;
+	movable = true;
 
 }
 
@@ -111,15 +111,5 @@ void Camera::setFacing(Facing dir) {
 }
 
 
-void Camera::setPatrolRoute(const glm::ivec2& start, const glm::ivec2& end) {
 
-	
-	if (start != end) {
-		movable = true;
-		patrolStart = start;
-		patrolEnd = end;
 
-		posEnemy = patrolStart;
-		currentPatrolTarget = patrolEnd;
-	}
-}

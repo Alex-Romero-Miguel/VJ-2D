@@ -74,7 +74,7 @@ void Dog::update(int deltaTime)
 	switch (state)
 	{
 	case PATROLLING:
-		patrol();
+		patrol(deltaTime);
 
 		if (canSeePlayer()) {
 			state = CHASING;
@@ -91,7 +91,7 @@ void Dog::update(int deltaTime)
 		attack(deltaTime);
 		break;
 	case RETURNING:
-		patrol();
+		//patrol();
 		break;
 
 	case DEAD: 

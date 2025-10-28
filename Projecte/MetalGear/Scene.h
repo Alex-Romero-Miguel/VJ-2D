@@ -21,13 +21,15 @@ public:
 	~Scene();
 
 	void init();
+
+	void loadLevel(const string& levelFile);
+	void loadEnemiesFromFile(const string& levelFile);
+
 	void restartGame();
 	void update(int deltaTime);
 	void render();
 
-
 	bool checkCollision(const glm::ivec4& a, const glm::ivec4& b);
-
 
 	void toggleGodMode();
 	void fullHeal();
@@ -37,20 +39,23 @@ public:
 
 	bool isGodMode() const { return godMode; }
 
-
 private:
 	void initShaders();
 
-private:
 	TileMap *map;
 	Player *player;
 	ShaderProgram texProgram;
-	float currentTime = 0;
 	glm::mat4 projection;
+	glm::vec2 cameraPos;
 	std::vector<Enemy*> enemies;
 
 	int deathTimer = 1000; 
 	bool godMode = false;
+
+	int currentLevel = 1;
+
+
+	glm::ivec2 playerStartPos;
 
 
 

@@ -40,8 +40,6 @@ public:
 
 	bool isWalkable(int x, int y) const;
 	/*std::deque<glm::ivec2> findPath(glm::ivec2 start, glm::ivec2 goal);*/
-
-	glm::ivec2 getMapSize() const { return mapSize; }
 	
 private:
 	bool loadLevel(const string &levelFile);
@@ -53,7 +51,8 @@ private:
 	GLint posLocation, texCoordLocation;
 	int nTiles;
 	glm::ivec2 position, mapSize, tilesheetSize;
-	int tileSize, blockSize;
+	int tileSize;
+	int blockSize;
 	Texture tilesheet;
 	glm::vec2 tileTexSize;
 	int *map;

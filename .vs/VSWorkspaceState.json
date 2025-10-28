@@ -1,15 +1,10 @@
 {
   "ExpandedNodes": [
-<<<<<<< HEAD
-    ""
-  ],
-  "SelectedNode": "\\MetalGear.sln",
-=======
     "",
     "\\Projecte",
-    "\\Projecte\\MetalGear"
+    "\\Projecte\\MetalGear",
+    "\\Projecte\\MetalGear\\shaders"
   ],
-  "SelectedNode": "\\Projecte\\MetalGear.sln",
->>>>>>> origin/main
+  "SelectedNode": "\\Projecte\\MetalGear\\Scene.cpp",
   "PreviewInSolutionExplorer": false
 }

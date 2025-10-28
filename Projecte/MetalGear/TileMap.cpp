@@ -138,6 +138,8 @@ void TileMap::prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program)
 		}
 	}
 
+	
+
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 	glGenBuffers(1, &vbo);
@@ -219,6 +221,6 @@ bool TileMap::isWalkable(int x, int y) const
 		return false; // fuera del mapa = no caminable
 
 	// Si el valor del tile es 0, está vacío => se puede caminar
-	return map[y * mapSize.x + x] == 0;
+	return map[y * mapSize.x + x] <= lastWalkable;
 }
 

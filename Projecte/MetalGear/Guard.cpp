@@ -37,6 +37,7 @@ void Guard::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 
 	sprite->changeAnimation(GUARD_STAND_DOWN);
 	tileMapDispl = tileMapPos;
+	facing = FACE_DOWN;
 
 	posEnemy = glm::vec2(0, 0);
 
@@ -46,6 +47,8 @@ void Guard::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 	state = PATROLLING;
 
 	health = 10;
+
+	movable = true;
 
 }
 
@@ -83,7 +86,7 @@ void Guard::update(int deltaTime)
 	switch (state)
 	{
 	case PATROLLING:
-		patrol();
+		patrol(deltaTime);
 		if (canSeePlayer()) {
 			state = CHASING;
 			updatePathToPlayer();
@@ -93,14 +96,12 @@ void Guard::update(int deltaTime)
 		chase(deltaTime);
 		break;
 	case RETURNING:
-		patrol();
+		//patrol();
 		break;
 	}
 	sprite->setPosition(glm::vec2(tileMapDispl.x + posEnemy.x,
 		tileMapDispl.y + posEnemy.y));
 }
-
-
 
 void Guard::stopMovingAnim() {
 	switch (facing) {
@@ -130,4 +131,16 @@ void Guard::changeDirAnim(glm::vec2 dir) {
 bool Guard::attack(int deltaTime)
 {
 	return false;
+}
+
+void Guard::resetState(){
+	state = PATROLLING;
+	currentPatrolTarget = patrolEnd; // volver al inicio del patrullaje
+	path.clear();
+
+	stopMovingAnim();
+
+	posEnemy = patrolStart;
+	/*sprite->setPosition(glm::vec2(tileMapDispl.x + posEnemy.x,
+		tileMapDispl.y + posEnemy.y));*/
 }

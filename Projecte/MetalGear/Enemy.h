@@ -26,6 +26,8 @@ public:
 	void setPlayer(Player* player);
 	void setFacing(Facing dir) { facing = dir; }
 
+	virtual void resetState();
+
 	glm::vec2 getPosition() const { return posEnemy; }
 	virtual glm::ivec2 getSize() { return glm::ivec2(16, 32); };
 
@@ -37,6 +39,10 @@ public:
 
 	virtual bool attack(int deltaTime) { return false; };
 	virtual int getDamage() const { return damage; };
+
+	bool isMovable() const { return movable; }
+
+	void setPatrolRoute(const glm::ivec2& start, const glm::ivec2& end);
 	
 
 protected:
@@ -45,7 +51,9 @@ protected:
 	glm::vec2 posEnemy;
 	TileMap* map;
 	Player* player;
-	glm::ivec2 patrolStart, patrolEnd, currentPatrolTarget;
+	glm::vec2 patrolStart, patrolEnd, currentPatrolTarget;
+
+	glm::vec2 moveDir;
 
 	// Sprites y animación
 	Texture spritesheet;
@@ -68,6 +76,7 @@ protected:
 	bool knockUp = false;
 	float verticalVel = 0.f;
 	float verticalPos = 0.f;
+	float moveSpeed = 0.1f;
 
 	int damage = 1;
 
@@ -79,15 +88,15 @@ protected:
 	float attackRange = 100.f;
 
 
+	bool movable = true;
+
 	// funciones
 	bool canSeePlayer();
-	void patrol();
+	void patrol(int deltaTime);
 	void chase(int deltaTime);
 	void updatePathToPlayer();
 	void followPath(int deltaTime);
 	
-
-
 	// Animaciones
 	virtual void stopMovingAnim();
 	virtual void changeDirAnim(glm::vec2 dir);

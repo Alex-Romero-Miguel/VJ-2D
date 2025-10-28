@@ -38,7 +38,7 @@ int main(void)
 		return -1;
 
 	/* Create a windowed mode window and its OpenGL context */
-	window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Metal Gear", NULL, NULL);
+	window = glfwCreateWindow(SCREEN_WIDTH*4, SCREEN_HEIGHT*4, "Metal Gear", NULL, NULL);
 	if (!window)
 	{
 		glfwTerminate();

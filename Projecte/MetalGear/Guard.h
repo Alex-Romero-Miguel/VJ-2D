@@ -31,17 +31,14 @@ public:
 
 	glm::ivec2 getSize() const { return glm::ivec2(16, 32); } 
 
+	void resetState() override;
+
 	
 private:
-
-	
-
-
 	GuardState state = PATROLLING;
 
 	bool attack(int deltaTime) override;
 	void stopMovingAnim() override;
 	void changeDirAnim(glm::vec2 dir) override;
-	
 };
 

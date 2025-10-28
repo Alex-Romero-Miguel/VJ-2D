@@ -76,8 +76,31 @@ bool Enemy::canSeePlayer()
 	return true;
 }
 
-void Enemy::patrol()
+void Enemy::patrol(int deltaTime)
 {
+	if (!movable) {
+		stopMovingAnim();
+		return;
+	}
+
+	// Comprueba si ha llegado (o casi) al objetivo actual
+	if (glm::distance(posEnemy, currentPatrolTarget) < 2.0f) {
+		// Si llegamos, cambiamos el objetivo al otro punto
+		if (currentPatrolTarget == patrolEnd)
+			currentPatrolTarget = patrolStart;
+		else
+			currentPatrolTarget = patrolEnd;
+	}
+	else {
+		// Si no hemos llegado, nos movemos hacia el objetivo
+		glm::vec2 direction = glm::normalize(currentPatrolTarget - posEnemy);
+
+		// ¡CLAVE! Usamos deltaTime para un movimiento fluido e independiente de los FPS
+		// Hacemos que la patrulla sea un poco más lenta que la persecución (ej. 50% de la velocidad)
+		posEnemy += direction * moveSpeed * 0.5f * float(deltaTime);
+
+		changeDirAnim(direction); // Actualiza la animación de movimiento
+	}
 }
 
 void Enemy::chase(int deltaTime)
@@ -133,9 +156,8 @@ void Enemy::followPath(int deltaTime)
 		diff = targetPos - posEnemy;
 	}
 
-	glm::vec2 dir = glm::normalize(diff);
-	float speed = 0.08f; 
-	posEnemy += dir * speed * float(deltaTime);
+	glm::vec2 dir = glm::normalize(diff); 
+	posEnemy += dir * moveSpeed * float(deltaTime);
 
 	changeDirAnim(dir);
 }
@@ -155,8 +177,7 @@ void Enemy::takeDamage(int amount) {
 
 	health -= amount;
 	isHurt = true;
-	hurtTimer = 300; // ms de invulnerabilidad
-
+	hurtTimer = 200; // ms de invulnerabilidad
 
 	knockUp = true;
 	verticalVel = -0.1f;
@@ -173,4 +194,27 @@ void Enemy::takeDamage(int amount) {
 
 bool Enemy::isDead()const {
 	return dead;
+}
+
+void Enemy::resetState() {
+	
+
+}
+
+void Enemy::setPatrolRoute(const glm::ivec2& start, const glm::ivec2& end) {
+	// Guarda las posiciones de la ruta
+	patrolStart = start;
+	patrolEnd = end;
+	posEnemy = start; // Coloca al enemigo en su posición inicial
+
+	// Comprueba si los puntos de inicio y fin son iguales
+	if (start == end) {
+		// Si son iguales, el enemigo es estático
+		movable = false;
+	}
+	else {
+		// Si son diferentes, el enemigo debe patrullar
+		movable = true;
+		currentPatrolTarget = patrolEnd; // Su primer objetivo es el final de la ruta
+	}
 }
