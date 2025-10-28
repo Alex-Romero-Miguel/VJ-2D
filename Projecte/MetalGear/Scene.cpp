@@ -292,6 +292,16 @@ void Scene::update(int deltaTime)
 		// 2. Actualiza la IA solo si está activo
 		if (isOnScreen) {
 			enemy->update(deltaTime);
+
+			if (enemy->attack(deltaTime)) {
+				Projectile* p = new Projectile();
+				glm::vec2 dir = glm::normalize(glm::vec2(player->getPosition()) - enemy->getPosition());
+
+				// Asume que tienes una textura compartida para los proyectiles
+				p->init(enemy->getPosition() + glm::vec2(8, 16), dir, texProgram);
+
+				projectiles.push_back(p); // <-- La línea clave que faltaba
+			}
 		}
 		else {
 			enemy->resetState();
@@ -376,15 +386,6 @@ void Scene::render()
 		p->render();
 	}
 
-	//Projectile projectile = new Projectile();
-
-	{
-		auto* p = new Projectile();
-		// En coordenadas de mundo. Como la view usa -cameraPos, se verá en la esquina superior-izquierda del mundo.
-		p->init(glm::vec2(0.f, 0.f), glm::vec2(0.f, 0.f), texProgram);
-		projectiles.push_back(p);
-		p->render();
-	}
 }
 
 void Scene::initShaders()
