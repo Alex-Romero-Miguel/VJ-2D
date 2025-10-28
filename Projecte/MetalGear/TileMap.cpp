@@ -1,20 +1,19 @@
-#include <iostream>
+﻿#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <vector>
 #include "TileMap.h"
-
+#include <queue>
+#include <cmath>
+#include <unordered_map>
 
 using namespace std;
-
 
 TileMap *TileMap::createTileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
 {
 	TileMap *map = new TileMap(levelFile, minCoords, program);
-	
 	return map;
 }
-
 
 TileMap::TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
 {
@@ -139,6 +138,8 @@ void TileMap::prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program)
 		}
 	}
 
+	
+
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 	glGenBuffers(1, &vbo);
@@ -161,10 +162,8 @@ bool TileMap::collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size) c
 	y1 = (pos.y + size.y - 1) / tileSize;
 	for(int y=y0; y<=y1; y++)
 	{
-		if(map[y*mapSize.x+x] != 0)
-			return true;
+		if (!isWalkable(x, y)) return true;
 	}
-	
 	return false;
 }
 
@@ -177,14 +176,13 @@ bool TileMap::collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size) 
 	y1 = (pos.y + size.y - 1) / tileSize;
 	for(int y=y0; y<=y1; y++)
 	{
-		if(map[y*mapSize.x+x] != 0)
-			return true;
+		if(! isWalkable(x, y)) return true;
 	}
 	
 	return false;
 }
 
-bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, int *posY) const
+bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size) const
 {
 	int x0, x1, y;
 	
@@ -193,15 +191,36 @@ bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, i
 	y = (pos.y + size.y - 1) / tileSize;
 	for(int x=x0; x<=x1; x++)
 	{
-		if(map[y*mapSize.x+x] != 0)
-		{
-			if(*posY - tileSize * y + size.y <= 4)
-			{
-				*posY = tileSize * y - size.y;
-				return true;
-			}
-		}
+		if (!isWalkable(x, y)) return true;
 	}
-	
 	return false;
 }
+
+bool TileMap::collisionMoveUp(const glm::ivec2& pos, const glm::ivec2& size) const
+{
+	int x0, x1, y;
+
+	x0 = pos.x / tileSize;
+	x1 = (pos.x + size.x - 1) / tileSize;
+	y = pos.y / tileSize; // fila superior
+
+	for (int x = x0; x <= x1; x++)
+	{
+		if (!isWalkable(x, y))
+			return true;
+	}
+	return false;
+}
+
+
+
+bool TileMap::isWalkable(int x, int y) const
+{
+	// Comprobamos que esté dentro del rango del mapa
+	if (x < 0 || y < 0 || x >= mapSize.x || y >= mapSize.y)
+		return false; // fuera del mapa = no caminable
+
+	// Si el valor del tile es 0, está vacío => se puede caminar
+	return map[y * mapSize.x + x] <= lastWalkable;
+}
+

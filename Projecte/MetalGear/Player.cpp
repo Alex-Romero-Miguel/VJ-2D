@@ -20,7 +20,7 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 	spritesheet.loadFromFile("images/solid_snake_normal.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	
 	sprite = Sprite::createSprite(glm::ivec2(16, 32), glm::vec2(0.125, 0.125), &spritesheet, &shaderProgram);
-	sprite->setNumberAnimations(12);
+	sprite->setNumberAnimations(13);
 	
 	sprite->setAnimationSpeed(STAND_LEFT, 8);
 	sprite->addKeyframe(STAND_LEFT, glm::vec2(0.25f, 0.0f));
@@ -54,7 +54,6 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 	sprite->addKeyframe(MOVE_DOWN, glm::vec2(0.0f, 0.125f));
 	sprite->addKeyframe(MOVE_DOWN, glm::vec2(0.125f, 0.125f));
 
-
 	sprite->setAnimationSpeed(PUNCH_LEFT, 12);
 	sprite->addKeyframe(PUNCH_LEFT, glm::vec2(0.25f, 0.0f));
 	sprite->addKeyframe(PUNCH_LEFT, glm::vec2(0.25f, 0.5f));
@@ -70,19 +69,28 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 	sprite->setAnimationSpeed(PUNCH_DOWN, 12);
 	sprite->addKeyframe(PUNCH_DOWN, glm::vec2(0.0f, 0.0f));
 	sprite->addKeyframe(PUNCH_DOWN, glm::vec2(0.0f, 0.5f));
-		
-	sprite->changeAnimation(0);
+
+	sprite->setAnimationSpeed(PUNCH_DOWN, 8);
+	sprite->addKeyframe(DEAD, glm::vec2(0.0f, 0.75f));
+	sprite->addKeyframe(PUNCH_DOWN, glm::vec2(0.75f, 0.75f));
+
+	sprite->changeAnimation(1);
 	tileMapDispl = tileMapPos;
+	posPlayer = glm::ivec2(0, 0);
+
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
 
-	facing = FACE_LEFT;
+	facing = FACE_RIGHT;
 
 	health = STARTING_HEALTH;
+	this->shaderProgram = &shaderProgram;
 }
 
 void Player::update(int deltaTime)
 {
 	sprite->update(deltaTime);
+
+	if (dead) sprite->changeAnimation(DEAD);
 
 	if (Game::instance().getKey(GLFW_KEY_C)) {
 		// canviar item equipat
@@ -136,6 +144,17 @@ void Player::update(int deltaTime)
 		return;
 	}
 
+	if (isHurt) {
+		hurtTimer -= deltaTime;
+		hurtBlinkTime += deltaTime * 0.01f; 
+
+		if (hurtTimer <= 0) {
+			isHurt = false;
+			hurtTimer = 0;
+			hurtBlinkTime = 0.f;
+		}
+	}
+
 	if(Game::instance().getKey(GLFW_KEY_LEFT) || Game::instance().getKey(GLFW_KEY_A))
 	{
 		if (sprite->animation() != MOVE_LEFT) {
@@ -143,7 +162,7 @@ void Player::update(int deltaTime)
 			facing = FACE_LEFT;
 		}
 		posPlayer.x -= 2;
-		if(map->collisionMoveLeft(posPlayer, glm::ivec2(16, 32)))
+		if(map->collisionMoveLeft(glm::ivec2(0, 16) + posPlayer, glm::ivec2(16, 16)))
 		{
 			posPlayer.x += 2;
 			sprite->changeAnimation(STAND_LEFT);
@@ -156,7 +175,7 @@ void Player::update(int deltaTime)
 			facing = FACE_RIGHT;
 		}
 		posPlayer.x += 2;
-		if(map->collisionMoveRight(posPlayer, glm::ivec2(16, 32)))
+		if(map->collisionMoveRight(glm::ivec2(0,16) + posPlayer, glm::ivec2(16, 16)))
 		{
 			posPlayer.x -= 2;
 			sprite->changeAnimation(STAND_RIGHT);
@@ -169,7 +188,7 @@ void Player::update(int deltaTime)
 			facing = FACE_UP;
 		}
 		posPlayer.y -= 2;
-		if(map->collisionMoveRight(posPlayer, glm::ivec2(16, 32)))
+		if(map->collisionMoveUp(glm::ivec2(0, 16) + posPlayer, glm::ivec2(16, 16)))
 		{
 			posPlayer.y += 2;
 			sprite->changeAnimation(STAND_UP);
@@ -182,7 +201,7 @@ void Player::update(int deltaTime)
 			facing = FACE_DOWN;
 		}
 		posPlayer.y += 2;
-		if(map->collisionMoveRight(posPlayer, glm::ivec2(16, 32)))
+		if(map->collisionMoveDown(glm::ivec2(0, 16) + posPlayer, glm::ivec2(16, 16)))
 		{
 			posPlayer.y -= 2;
 			sprite->changeAnimation(STAND_DOWN);
@@ -201,14 +220,34 @@ void Player::update(int deltaTime)
 	}
 
 	zWasDown = zDown;
+
+	//std::cout << "Health: " << health << std::endl;
 	
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
 }
 
 void Player::render()
 {
+	shaderProgram->use();
+
+	if (isHurt) {
+		int cycle = int(hurtTimer / 75.f) % 2; 
+
+		if (cycle == 0) {
+			shaderProgram->setUniform4f("tintColor", 1.0f, 0.0f, 1.0f, 1.0f); // Rojo
+		}
+		else {
+			shaderProgram->setUniform4f("tintColor", 1.0f, 1.0f, 1.0f, 1.0f); // Normal
+		}
+	}
+	else {
+		shaderProgram->setUniform4f("tintColor", 1.0f, 1.0f, 1.0f, 1.0f);
+	}
 	sprite->render();
+	shaderProgram->setUniform4f("tintColor", 1.0f, 1.0f, 1.0f, 1.0f);
 }
+
+
 
 void Player::setTileMap(TileMap *tileMap)
 {
@@ -224,10 +263,15 @@ void Player::setPosition(const glm::vec2 &pos)
 
 void Player::takeDamage(int amount)
 {
+	
+	if (isHurt) return; 
 	health -= amount;
 	if (health < 0) {
 		health = 0; // Evita que la vida sea negativa
+		dead = true;
 	}
+	isHurt = true;
+	hurtTimer = 500.f;
 }
 
 void Player::heal(int amount)
@@ -276,4 +320,18 @@ float Player::getHealthPercentage() const
 }
 
 
+glm::ivec4 Player::getPunchHitbox() const {
+	if (!punching) return glm::ivec4(0, 0, 0, 0);
 
+	glm::ivec2 pos = posPlayer;
+	glm::ivec2 size = getSize();
+	int range = 10; // distancia del golpe
+
+	switch (facing) {
+	case FACE_LEFT:  return glm::ivec4(pos.x - range, pos.y, range, size.y);
+	case FACE_RIGHT: return glm::ivec4(pos.x + size.x, pos.y, range, size.y);
+	case FACE_UP:    return glm::ivec4(pos.x, pos.y - range, size.x, range);
+	case FACE_DOWN:  return glm::ivec4(pos.x, pos.y + size.y, size.x, range);
+	}
+	return glm::ivec4(0, 0, 0, 0);
+}
