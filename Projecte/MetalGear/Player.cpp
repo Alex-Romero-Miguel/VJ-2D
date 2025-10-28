@@ -4,10 +4,19 @@
 #include "Player.h"
 #include "Game.h"
 
+Player::Player()
+{
+	sprite = NULL;
+}
+
+Player::~Player()
+{
+	if(sprite != NULL)
+		delete sprite;
+}
 
 void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 {
-	bJumping = false;
 	spritesheet.loadFromFile("images/solid_snake_normal.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	
 	sprite = Sprite::createSprite(glm::ivec2(16, 32), glm::vec2(0.125, 0.125), &spritesheet, &shaderProgram);
@@ -74,6 +83,10 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 void Player::update(int deltaTime)
 {
 	sprite->update(deltaTime);
+
+	if (Game::instance().getKey(GLFW_KEY_C)) {
+		// canviar item equipat
+	}
 
 	bool zDown = Game::instance().getKey(GLFW_KEY_Z);
 
@@ -217,6 +230,36 @@ void Player::takeDamage(int amount)
 	}
 }
 
+void Player::heal(int amount)
+{
+	health += amount;
+	if (health > STARTING_HEALTH)
+		health = STARTING_HEALTH;
+}
+
+void Player::pickUpItem(Item *item)
+{
+	inventory.push_back(item);
+}
+
+void Player::useItem()
+{
+	inventory[current_item]->use(this);
+}
+
+void Player::changeItem()
+{
+	current_item += 1;
+	int max = inventory.size();
+	if (current_item >= max) 
+		current_item = 0;
+}
+
+void Player::consumeItem() 
+{
+	inventory.erase(inventory.begin() + current_item);
+}
+
 bool Player::isDead() const
 {
 	return health <= 0;
@@ -226,5 +269,11 @@ int Player::getHealth() const
 {
 	return health;
 }
+
+float Player::getHealthPercentage() const
+{
+	return float(health) / STARTING_HEALTH;
+}
+
 
 

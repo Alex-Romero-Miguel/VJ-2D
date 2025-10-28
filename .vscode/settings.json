@@ -2,6 +2,18 @@
     "files.associations": {
         "*.jsonc": "json",
         "string": "cpp",
-        "ios": "cpp"
+        "ios": "cpp",
+        "xstring": "cpp",
+        "algorithm": "cpp",
+        "fstream": "cpp",
+        "iosfwd": "cpp",
+        "istream": "cpp",
+        "list": "cpp",
+        "ostream": "cpp",
+        "sstream": "cpp",
+        "streambuf": "cpp",
+        "vector": "cpp",
+        "xhash": "cpp",
+        "xlocbuf": "cpp"
     }
 }
