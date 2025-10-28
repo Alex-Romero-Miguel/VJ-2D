@@ -12,7 +12,7 @@ public:
     Item();
     ~Item();
 
-    void init(const glm::ivec2 &tileMapPos);
+    void init(const int ts, const glm::ivec2 &tileMapPos);
     void render();
 
 	void setTileMap(TileMap *tileMap);
@@ -20,6 +20,11 @@ public:
 
 	glm::ivec2 getPosition() const { return posItem; }
 	glm::ivec2 getSize() const { return glm::ivec2(16, 16); }
+    
+	bool collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size) const;
+	bool collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size) const;
+	bool collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, int *posY) const;
+	bool collisionMoveUp(const glm::ivec2 &pos, const glm::ivec2 &size, int *posY) const;
     
     void pickUp();
     void use(Player *player);
@@ -31,6 +36,7 @@ protected:
 	Texture spritesheet;
     Sprite *sprite;
 	TileMap *map;
+    int tileSize;
 
 };
 

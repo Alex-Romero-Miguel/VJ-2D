@@ -7,6 +7,7 @@
 #include "TileMap.h"
 #include "Player.h"
 #include "HUD.h"
+#include "Rations.h"
 
 
 // Scene contains all the entities of our game.
@@ -35,6 +36,8 @@ private:
 	ShaderProgram texProgram;
 	float currentTime;
 	glm::mat4 projection;
+
+	Rations *rations;
 
 };
 

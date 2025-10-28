@@ -40,7 +40,7 @@ Scene::~Scene()
 void Scene::init()
 {
 	initShaders();
-	map = TileMap::createTileMap("levels/exterior.txt", glm::vec2(SCREEN_X, SCREEN_Y), texProgram);
+	map = TileMap::createTileMap("levels/interior.txt", glm::vec2(SCREEN_X, SCREEN_Y), texProgram);
 	glm::ivec2 map_size_tiles = map->getMapSize();
 	int tile_size = map->getTileSize();
 	glm::ivec2 map_size = glm::ivec2(MAP_DISPLAY_X, MAP_DISPLAY_Y);
@@ -50,6 +50,9 @@ void Scene::init()
 	player->setTileMap(map);
 	hud = new HUD();
 	hud->init(tile_size, glm::ivec2(SCREEN_X, SCREEN_Y), glm::ivec2(HUD_X_TILES * tile_size, map_size.y + HUD_Y_TILES * tile_size),player, texProgram);
+	rations = Rations::createRations(&texProgram);
+	rations->setPosition(glm::vec2((INIT_PLAYER_X_TILES + 4) * tile_size, INIT_PLAYER_Y_TILES * tile_size));
+	rations->setTileMap(map);
 	projection = glm::ortho(0.f, float(map_size.x), float(map_size.y + (hud->getHeight() * tile_size)), 0.f);
 	currentTime = 0.0f;
 }
@@ -74,6 +77,7 @@ void Scene::render()
 	map->render();
 	player->render();
 	hud->render();
+	rations->render();
 }
 
 void Scene::initShaders()
