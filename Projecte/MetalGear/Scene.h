@@ -1,11 +1,13 @@
 #ifndef _SCENE_INCLUDE
 #define _SCENE_INCLUDE
 
-
+#include <iostream>
 #include <glm/glm.hpp>
 #include "ShaderProgram.h"
 #include "TileMap.h"
 #include "Player.h"
+#include "HUD.h"
+#include "Rations.h"
 
 
 // Scene contains all the entities of our game.
@@ -27,11 +29,15 @@ private:
 	void initShaders();
 
 private:
+	string levelFile;
 	TileMap *map;
 	Player *player;
+	HUD *hud;
 	ShaderProgram texProgram;
 	float currentTime;
 	glm::mat4 projection;
+
+	Rations *rations;
 
 };
 

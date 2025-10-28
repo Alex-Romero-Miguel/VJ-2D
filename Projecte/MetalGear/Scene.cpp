@@ -5,17 +5,24 @@
 #include "Game.h"
 
 
-#define SCREEN_X 32
-#define SCREEN_Y 16
+#define SCREEN_X 0
+#define SCREEN_Y 0
 
-#define INIT_PLAYER_X_TILES 4
-#define INIT_PLAYER_Y_TILES 25
+#define MAP_DISPLAY_X 256
+#define MAP_DISPLAY_Y 192
+
+#define INIT_PLAYER_X_TILES 16
+#define INIT_PLAYER_Y_TILES 16
+
+#define HUD_X_TILES 0
+#define HUD_Y_TILES 0
 
 
 Scene::Scene()
 {
 	map = NULL;
 	player = NULL;
+	hud = NULL;
 }
 
 Scene::~Scene()
@@ -24,18 +31,29 @@ Scene::~Scene()
 		delete map;
 	if(player != NULL)
 		delete player;
+	if(hud != NULL)
+		delete hud; 
+	
 }
 
 
 void Scene::init()
 {
 	initShaders();
-	map = TileMap::createTileMap("levels/mapa_provisional.txt", glm::vec2(SCREEN_X, SCREEN_Y), texProgram);
+	map = TileMap::createTileMap("levels/interior.txt", glm::vec2(SCREEN_X, SCREEN_Y), texProgram);
+	glm::ivec2 map_size_tiles = map->getMapSize();
+	int tile_size = map->getTileSize();
+	glm::ivec2 map_size = glm::ivec2(MAP_DISPLAY_X, MAP_DISPLAY_Y);
 	player = new Player();
 	player->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
-	player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
+	player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * tile_size, INIT_PLAYER_Y_TILES * tile_size));
 	player->setTileMap(map);
-	projection = glm::ortho(0.f, float(SCREEN_WIDTH), float(SCREEN_HEIGHT), 0.f);
+	hud = new HUD();
+	hud->init(tile_size, glm::ivec2(SCREEN_X, SCREEN_Y), glm::ivec2(HUD_X_TILES * tile_size, map_size.y + HUD_Y_TILES * tile_size),player, texProgram);
+	rations = Rations::createRations(&texProgram);
+	rations->setPosition(glm::vec2((INIT_PLAYER_X_TILES + 4) * tile_size, INIT_PLAYER_Y_TILES * tile_size));
+	rations->setTileMap(map);
+	projection = glm::ortho(0.f, float(map_size.x), float(map_size.y + (hud->getHeight() * tile_size)), 0.f);
 	currentTime = 0.0f;
 }
 
@@ -43,6 +61,7 @@ void Scene::update(int deltaTime)
 {
 	currentTime += deltaTime;
 	player->update(deltaTime);
+	hud->update(deltaTime);
 }
 
 void Scene::render()
@@ -57,6 +76,8 @@ void Scene::render()
 	texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
 	map->render();
 	player->render();
+	hud->render();
+	rations->render();
 }
 
 void Scene::initShaders()
