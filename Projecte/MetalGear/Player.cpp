@@ -155,6 +155,17 @@ void Player::update(int deltaTime)
 		}
 	}
 
+	if (isHurt) {
+		hurtTimer -= deltaTime;
+		hurtBlinkTime += deltaTime * 0.01f; 
+
+		if (hurtTimer <= 0) {
+			isHurt = false;
+			hurtTimer = 0;
+			hurtBlinkTime = 0.f;
+		}
+	}
+
 	if(Game::instance().getKey(GLFW_KEY_LEFT) || Game::instance().getKey(GLFW_KEY_A))
 	{
 		if (sprite->animation() != MOVE_LEFT) {
@@ -162,6 +173,7 @@ void Player::update(int deltaTime)
 			facing = FACE_LEFT;
 		}
 		posPlayer.x -= 2;
+		if(map->collisionMoveLeft(glm::ivec2(0, 16) + posPlayer, glm::ivec2(16, 16)))
 		if(map->collisionMoveLeft(glm::ivec2(0, 16) + posPlayer, glm::ivec2(16, 16)))
 		{
 			posPlayer.x += 2;
@@ -176,6 +188,7 @@ void Player::update(int deltaTime)
 		}
 		posPlayer.x += 2;
 		if(map->collisionMoveRight(glm::ivec2(0,16) + posPlayer, glm::ivec2(16, 16)))
+		if(map->collisionMoveRight(glm::ivec2(0,16) + posPlayer, glm::ivec2(16, 16)))
 		{
 			posPlayer.x -= 2;
 			sprite->changeAnimation(STAND_RIGHT);
@@ -189,6 +202,7 @@ void Player::update(int deltaTime)
 		}
 		posPlayer.y -= 2;
 		if(map->collisionMoveUp(glm::ivec2(0, 16) + posPlayer, glm::ivec2(16, 16)))
+		if(map->collisionMoveUp(glm::ivec2(0, 16) + posPlayer, glm::ivec2(16, 16)))
 		{
 			posPlayer.y += 2;
 			sprite->changeAnimation(STAND_UP);
@@ -201,6 +215,7 @@ void Player::update(int deltaTime)
 			facing = FACE_DOWN;
 		}
 		posPlayer.y += 2;
+		if(map->collisionMoveDown(glm::ivec2(0, 16) + posPlayer, glm::ivec2(16, 16)))
 		if(map->collisionMoveDown(glm::ivec2(0, 16) + posPlayer, glm::ivec2(16, 16)))
 		{
 			posPlayer.y -= 2;
@@ -220,6 +235,8 @@ void Player::update(int deltaTime)
 	}
 
 	zWasDown = zDown;
+
+	//std::cout << "Health: " << health << std::endl;
 
 	//std::cout << "Health: " << health << std::endl;
 	
@@ -243,9 +260,27 @@ void Player::render()
 	else {
 		shaderProgram->setUniform4f("tintColor", 1.0f, 1.0f, 1.0f, 1.0f);
 	}
+	shaderProgram->use();
+
+	if (isHurt) {
+		int cycle = int(hurtTimer / 75.f) % 2; 
+
+		if (cycle == 0) {
+			shaderProgram->setUniform4f("tintColor", 1.0f, 0.0f, 1.0f, 1.0f); // Rojo
+		}
+		else {
+			shaderProgram->setUniform4f("tintColor", 1.0f, 1.0f, 1.0f, 1.0f); // Normal
+		}
+	}
+	else {
+		shaderProgram->setUniform4f("tintColor", 1.0f, 1.0f, 1.0f, 1.0f);
+	}
 	sprite->render();
 	shaderProgram->setUniform4f("tintColor", 1.0f, 1.0f, 1.0f, 1.0f);
+	shaderProgram->setUniform4f("tintColor", 1.0f, 1.0f, 1.0f, 1.0f);
 }
+
+
 
 
 
@@ -263,6 +298,8 @@ void Player::setPosition(const glm::vec2 &pos)
 
 void Player::takeDamage(int amount)
 {
+	
+	if (isHurt) return; 
 	
 	if (isHurt) return; 
 	health -= amount;
