@@ -86,49 +86,7 @@ void Scene::init()
 	weapon->init(glm::ivec2(SCREEN_X, SCREEN_Y), player);
 	weapon->setPosition(glm::vec2((INIT_PLAYER_X_TILES + 6) * tile_size, (INIT_PLAYER_Y_TILES + 1) * tile_size));
 	weapon->setTileMap(map);
-	items.push_back(weapon);
-	
-	/*
-	const int NUM_ENEMIES = 3;
-
-	glm::ivec2 enemyStartPositions[NUM_ENEMIES] = {
-		glm::ivec2(10, 25),
-		glm::ivec2(20, 20),
-		glm::ivec2(15, 15)
-	};
-	
-	for (int i = 0; i < NUM_ENEMIES; ++i)
-	{
-		Enemy* enemy = new Guard();
-
-		enemy->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
-		enemy->setPosition(glm::vec2(enemyStartPositions[i].x * map->getTileSize(),
-			enemyStartPositions[i].y * map->getTileSize()));
-		enemy->setTileMap(map);
-		enemy->setPlayer(player);
-
-		enemies.push_back(enemy); 
-	}*/
-
-	/*Camera* camera = new Camera();
-	camera->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
-	camera->setPosition(glm::vec2(5 * map->getTileSize(),
-		10 * map->getTileSize()));
-	camera->setPatrolRoute(glm::ivec2(5 * map->getTileSize(), 10 * map->getTileSize()),
-		glm::ivec2(10 * map->getTileSize(), 10 * map->getTileSize()));
-	camera->setTileMap(map);
-	camera->setPlayer(player);
-	enemies.push_back(camera);*/
-
-	/*
-	Dog* dog = new Dog();
-	dog->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
-	dog->setPosition(glm::vec2(10 * map->getTileSize(),
-		10 * map->getTileSize()));
-	dog->setTileMap(map);
-	dog->setPlayer(player);
-	enemies.push_back(dog);*/
-	
+	items.push_back(weapon);	
 
 	currentLevel = 1;
 	// currentTime = 0.0f;

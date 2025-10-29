@@ -14,10 +14,6 @@ Item::~Item()
         delete inWorldSprite;
     if(inHudSprite != NULL)
         delete inHudSprite;
-    if(map != NULL)
-        delete map;
-    if(player != NULL)
-        delete player;
 }
 
 void Item::init(const glm::ivec2& tileMapPos, Player* playerReference)
