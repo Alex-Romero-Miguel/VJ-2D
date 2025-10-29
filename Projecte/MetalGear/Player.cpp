@@ -70,9 +70,9 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 	sprite->addKeyframe(PUNCH_DOWN, glm::vec2(0.0f, 0.0f));
 	sprite->addKeyframe(PUNCH_DOWN, glm::vec2(0.0f, 0.5f));
 
-	sprite->setAnimationSpeed(PUNCH_DOWN, 8);
+	sprite->setAnimationSpeed(DEAD, 8);
 	sprite->addKeyframe(DEAD, glm::vec2(0.0f, 0.75f));
-	sprite->addKeyframe(PUNCH_DOWN, glm::vec2(0.75f, 0.75f));
+	sprite->addKeyframe(DEAD, glm::vec2(0.75f, 0.75f));
 
 	sprite->changeAnimation(1);
 	tileMapDispl = tileMapPos;
@@ -232,7 +232,7 @@ void Player::update(int deltaTime)
 	//std::cout << "Health: " << health << std::endl;
 	
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
-	std::cout << posPlayer.x/8.f << " " << posPlayer.y/8.f << std::endl;
+	//std::cout << posPlayer.x/8.f << " " << posPlayer.y/8.f << std::endl;
 }
 
 void Player::render()

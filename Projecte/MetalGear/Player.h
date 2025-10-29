@@ -81,11 +81,10 @@ private:
 	static const int STARTING_HEALTH = 3;
 	int health; // Vida actual del jugador
 
-
 	glm::ivec2 colliderSize = glm::ivec2(16, 16);
 	glm::ivec2 colliderOffset = glm::ivec2(0, 16);
 
-	const int COLLISION_MARGIN = 2;
+	//const int COLLISION_MARGIN = 2;
 };
 
 

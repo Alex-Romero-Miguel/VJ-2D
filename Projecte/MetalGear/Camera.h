@@ -30,11 +30,17 @@ public:
 
 	void setFacing(Facing dir);
 
+	void setEnemies(std::vector<Enemy*>* enemiesList) { enemies = enemiesList; }
+
 private: 
 	
 	CameraState state;
 
-	//glm::ivec2 patrolStart, patrolEnd; // opcional, si la cámara patrulla
+	std::vector<Enemy*>* enemies = nullptr;
+
+	int alertTimer = 0;
+
+	//glm::ivec2 patrolStart, patrolEnd; 
 	//glm::vec2 moveDir;
 
 	//glm::vec2 currentPatrolTarget;

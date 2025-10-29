@@ -31,6 +31,10 @@ public:
 
 	void resetState() override;
 
+	bool isGuard() const { return true; };
+
+	void setToAlarted();
+
 	
 private:
 	GuardState state = IDLE;
@@ -38,6 +42,8 @@ private:
 	bool attack(int deltaTime) override;
 	void stopMovingAnim() override;
 	void changeDirAnim(glm::vec2 dir) override;
+
+	glm::vec2 targetPos;
 
 	int attackCooldown = 0;
 };

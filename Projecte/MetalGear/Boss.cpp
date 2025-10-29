@@ -31,148 +31,116 @@ void Boss::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 	state = IDLE;
 	facing = FACE_DOWN;
 
-	health = 20;
+	health = 15;
 	attackCooldown = 0;
 	moveSpeed = 1.2f;
 
 	timeBetweenShots = 0;
 
 	shootingPoints = {
-		glm::vec2(20, 20),
-		glm::vec2(30, 20),
-		glm::vec2(40, 20)
+		glm::vec2(26, 30),
+		glm::vec2(116, 30),
+		glm::vec2(218, 30)
 	};
+	//currentTargetIndex = 0;
 }
 
 void Boss::update(int deltaTime) {
-	sprite->update(deltaTime);
-	if (attackCooldown > 0) attackCooldown -= deltaTime;
-	if (timeBetweenShots > 0) timeBetweenShots -= deltaTime;
 
-	switch (state) {
-	case IDLE:
-		if (canSeePlayer()) {
-			state = CHOOSING_TARGET;
-			//Show dialogue
-		}
-		break;
-	case CHOOSING_TARGET:
-		targetPoint = findClosestShootingPoint();
+    sprite->update(deltaTime);
+    if (attackCooldown > 0) attackCooldown -= deltaTime;
+    if (timeBetweenShots > 0) timeBetweenShots -= deltaTime;
 
-		// 2. ACTUAR: Decide si moverse o atacar
-		if (glm::distance(posEnemy, targetPoint) < 2.0f) {
-			// Si ya está en el punto más cercano, empieza a atacar
-			state = ATTACKING;
-			burstShotsFired = 0; // Reinicia el contador de la ráfaga
-		}
-		else {
-			// Si no, se mueve hacia allí
-			state = MOVING;
-		}
-		break;
+    if (isHurt) {
+        hurtTimer -= deltaTime;
+        if (hurtTimer <= 0) {
+            isHurt = false;
+            hurtTimer = 0;
+        }
+    }
 
-	case MOVING: {
-		sprite->changeAnimation(BOSS_MOVE);
+    if (knockUp) {
+        verticalVel += 0.0012f * deltaTime; 
+        verticalPos += verticalVel * deltaTime;
 
-		// Si está lejos, se mueve hacia el objetivo
-		if (glm::distance(posEnemy, targetPoint) > 2.0f) {
-			glm::vec2 dir = glm::normalize(targetPoint - posEnemy);
-			posEnemy += dir * moveSpeed;
-		}
-		else {
-			// Si llegó, se detiene y se prepara para atacar
-			posEnemy = targetPoint;
-			state = ATTACKING;
-			burstShotsFired = 0;
-		}
-		break;
+        if (verticalPos > 0.f) {
+            verticalPos = 0.f;
+            knockUp = false;
+        }
 
-		//// Encuentra el punto de disparo más cercano al jugador
-		//glm::vec2 playerPos = player->getPosition();
-		//glm::vec2 targetPoint = shootingPoints[0];
-		//float minDist = glm::distance(playerPos, targetPoint);
+        sprite->setPosition(glm::vec2(tileMapDispl.x + posEnemy.x,
+            tileMapDispl.y + posEnemy.y + verticalPos));
+        return; // se detiene el resto de la IA mientras cae
+    }
 
-		//for (auto& p : shootingPoints) {
-		//	float dist = glm::distance(playerPos, p);
-		//	if (dist < minDist) {
-		//		minDist = dist;
-		//		targetPoint = p;
-		//	}
-		//}
 
-		//// Movimiento hacia ese punto
-		//glm::vec2 dir = targetPoint - posEnemy;
-		//float len = glm::length(dir);
-		//if (len > 1.f) posEnemy += glm::normalize(dir) * moveSpeed;
-		//else state = ATTACKING;
+    switch (state) {
+    case IDLE:
+        state = CHOOSING_TARGET;
+        break;
 
-		//sprite->setPosition(glm::vec2(tileMapDispl.x + posEnemy.x, tileMapDispl.y + posEnemy.y));
+    case CHOOSING_TARGET:
+        targetPoint = shootingPoints[currentTargetIndex];
+        state = MOVING;
+        sprite->changeAnimation(BOSS_MOVE);
+        break;
 
-		//break;
-	}
+    case MOVING: {
+        glm::vec2 diff = targetPoint - posEnemy;
+        float len = glm::length(diff);
+        if (len > 0.01f)
+            posEnemy += (diff / len) * moveSpeed * (deltaTime / 16.f);
 
-	case ATTACKING: { // Disparos
-		//if (attackCooldown <= 0) {
-		//	// Disparo hacia el jugador
-		//	glm::vec2 playerPos = player->getPosition();
-		//	glm::vec2 dir = glm::normalize(playerPos - posEnemy);
+        // Cuando llega al punto, se detiene para atacar
+        if (glm::distance(posEnemy, targetPoint) < 2.0f) {
+            posEnemy = targetPoint;
+            state = ATTACKING;
+            burstShotsFired = 0;
+            sprite->changeAnimation(BOSS_SHOOT);
+        }
+        break;
+    }
 
-		//	/*Projectile p;
-		//	p.init(posEnemy + glm::vec2(8, 8), dir * 3.0f, *shaderProgram);
-		//	projectiles.push_back(p);*/
+    case ATTACKING: {
+        // Dispara una ráfaga de balas
+        const int SHOTS_PER_BURST = 5;
+        const int TIME_BETWEEN_SHOTS = 300; // ms entre disparos
 
-		//	attackCooldown = 600; // 0.6s cooldown
-		//}
-		//else attackCooldown -= deltaTime;
+        if (burstShotsFired < SHOTS_PER_BURST && attackCooldown <= 0) {
+            // Aquí creas el proyectil
+            glm::vec2 dir = glm::normalize(glm::vec2(player->getPosition()) - posEnemy);
+            // projectileManager->spawn(posEnemy + glm::vec2(8,8), dir * 4.f);
+            burstShotsFired++;
+            attackCooldown = TIME_BETWEEN_SHOTS;
+        }
 
-		//const int SHOTS_PER_BURST = 5;
-		//if (burstShotsFired >= SHOTS_PER_BURST) {
-		//	// Si terminó la ráfaga, entra en cooldown
-		//	state = IDLE;
-		//	attackCooldown = 2000; // Cooldown de 2 segundos antes de la próxima acción
-		//}
-		//break;
+        // Cuando termina la ráfaga, pausa antes de moverse al siguiente punto
+        if (burstShotsFired >= SHOTS_PER_BURST && attackCooldown <= 0) {
+            state = COOLDOWN;
+            attackCooldown = 800; // pausa breve antes de continuar
+            sprite->changeAnimation(BOSS_STAND);
+        }
+        break;
+    }
 
-		stopMovingAnim();
-		const int SHOTS_PER_BURST = 10;
-		// Si ya disparó todas las balas de la ráfaga, entra en cooldown
-		if (burstShotsFired >= SHOTS_PER_BURST) {
-			state = COOLDOWN;
-			attackCooldown = 1000; // Pausa de 1.5 segundos después de la ráfaga
-		}
-		break;
-	}
-	case COOLDOWN:
-		stopMovingAnim();
-		// Cuando termina la pausa, vuelve a evaluar la situación
-		if (attackCooldown <= 0) {
-			state = CHOOSING_TARGET;
-		}
-		break;
-	case DEAD:
-		//Animacion de muerte
-		break;
-	}
+    case COOLDOWN:
+        if (attackCooldown > 0)
+            attackCooldown -= deltaTime;
+        else {
+            // Cambiar al siguiente punto de patrulla
+            currentTargetIndex = (currentTargetIndex + 1) % shootingPoints.size();
+            state = CHOOSING_TARGET;
+        }
+        break;
 
-	sprite->setPosition(glm::vec2(tileMapDispl.x + posEnemy.x,
-		tileMapDispl.y + posEnemy.y));
+    case DEAD:
+        break;
+    }
+
+    sprite->setPosition(glm::vec2(tileMapDispl.x + posEnemy.x,
+        tileMapDispl.y + posEnemy.y));
 }
 
-//Projectile Boss::shoot()
-//{
-//	Projectile p;
-//	glm::vec2 dir = glm::normalize(glm::vec2(player->getPosition()) - posEnemy);
-//
-//	p.init(posEnemy + glm::vec2(8, 8), dir, *shaderProgram);
-//	return p;
-//}
-
-
-
-//bool Boss::readyToShoot() const
-//{
-//	return state == ATTACKING && attackCooldown <= 0;
-//}
 
 
 bool Boss::attack(int deltaTime)
@@ -202,4 +170,5 @@ glm::vec2 Boss::findClosestShootingPoint()
 	}
 	return closestPoint;
 }
+
 

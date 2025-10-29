@@ -53,7 +53,6 @@ Scene::~Scene()
 
 void Scene::init()
 {
-	currentLevel = 1;
 	initShaders();
 
 	map = TileMap::createTileMap("levels/mapa_provisional.txt", glm::vec2(SCREEN_X, SCREEN_Y), texProgram);
@@ -74,62 +73,6 @@ void Scene::init()
 	rations->setTileMap(map);
 
 
-	doorCooldown = 0;
-
-	/*Boss* boss = new Boss();
-	boss->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
-	boss->setPosition(glm::vec2(5 * map->getTileSize(),
-		5 * map->getTileSize()));
-	boss->setTileMap(map);
-	boss->setPlayer(player);
-	enemies.push_back(boss);*/
-	
-	/*
-	const int NUM_ENEMIES = 3;
-
-	glm::ivec2 enemyStartPositions[NUM_ENEMIES] = {
-		glm::ivec2(10, 25),
-		glm::ivec2(20, 20),
-		glm::ivec2(15, 15)
-	};
-	
-	for (int i = 0; i < NUM_ENEMIES; ++i)
-	{
-		Enemy* enemy = new Guard();
-
-		enemy->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
-		enemy->setPosition(glm::vec2(enemyStartPositions[i].x * map->getTileSize(),
-			enemyStartPositions[i].y * map->getTileSize()));
-		enemy->setTileMap(map);
-		enemy->setPlayer(player);
-
-		enemies.push_back(enemy); 
-	}*/
-
-	/*Camera* camera = new Camera();
-	camera->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
-	camera->setPosition(glm::vec2(5 * map->getTileSize(),
-		10 * map->getTileSize()));
-	camera->setPatrolRoute(glm::ivec2(5 * map->getTileSize(), 10 * map->getTileSize()),
-		glm::ivec2(10 * map->getTileSize(), 10 * map->getTileSize()));
-	camera->setTileMap(map);
-	camera->setPlayer(player);
-	enemies.push_back(camera);*/
-
-	/*
-	Dog* dog = new Dog();
-	dog->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
-	dog->setPosition(glm::vec2(10 * map->getTileSize(),
-		10 * map->getTileSize()));
-	dog->setTileMap(map);
-	dog->setPlayer(player);
-	enemies.push_back(dog);*/
-
-	
-	currentSubroom = "";
-
-	currentLevel = 1;
-	// currentTime = 0.0f;
 	cameraPos = glm::vec2(0,0);
 	loadLevel("levels/exterior.txt", glm::vec2(15,15));
 	playerStartPos = glm::ivec2(15, 15);
@@ -137,7 +80,6 @@ void Scene::init()
 	deathTimer = 1000;
 
 	allDoors.clear();
-
 	// Cargá las puertas del Nivel 1 (exterior)
 	allDoors[1] = {
 		{glm::ivec2(54, 12), glm::ivec2(2, 3), "levels/truck.txt", glm::ivec2(20, 11), 4},  // El '4' es el ID del nivel de destino
@@ -146,8 +88,8 @@ void Scene::init()
 
 	// Cargá las puertas del Nivel 2 (interior)
 	allDoors[2] = {
-		//{glm::ivec2(55, 7), glm::ivec2(2, 3), "levels/room.txt", glm::ivec2(20, 11), 4}
-		//{glm::ivec2(9, 19), glm::ivec2(2, 3), "levels/boss.txt", glm::ivec2(15, 15), 3}
+		{glm::ivec2(56, 8), glm::ivec2(1, 3), "levels/room.txt", glm::ivec2(13, 10), 4},
+		{glm::ivec2(9, 19), glm::ivec2(2, 3), "levels/boss.txt", glm::ivec2(15, 15), 3}
 	};
 
 	// Cargá las puertas del Nivel 4 (camión)
@@ -155,8 +97,8 @@ void Scene::init()
 		{glm::ivec2(24, 10), glm::ivec2(4, 8), "levels/exterior.txt", glm::ivec2(56, 14), 1}
 	};
 	// Cargá las puertas del Nivel 5 (room)
-	allDoors[4] = {
-		{glm::ivec2(24, 10), glm::ivec2(4, 8), "levels/exterior.txt", glm::ivec2(56, 14), 1}
+	allDoors[5] = {
+		{glm::ivec2(4, 8), glm::ivec2(2, 2), "levels/interior.txt", glm::ivec2(50, 8), 2}
 	};
 
 
@@ -179,24 +121,16 @@ void Scene::loadLevel(const string& levelFile, const glm::ivec2& playerSpawnPos)
 		playerSpawnPos.y * map->getTileSize()
 	));
 
-	//cameraPos.x = floor(player->getPosition().x / SCREEN_WIDTH) * SCREEN_WIDTH;
-	//cameraPos.y = floor(player->getPosition().y / SCREEN_HEIGHT) * SCREEN_HEIGHT;
-
-	currentLevelFile = levelFile;
-
-	
-
 	if (levelFile == "levels/exterior.txt") {
 
 		currentLevel = 1;
-
-
 	}
 	else if (levelFile == "levels/interior.txt") {
 		currentLevel = 2;
 		
 	}
 	else if (levelFile == "levels/boss.txt") {
+		
 
 		currentLevel = 3;
 	}
@@ -206,24 +140,8 @@ void Scene::loadLevel(const string& levelFile, const glm::ivec2& playerSpawnPos)
 
 	}
 	else if (levelFile == "levels/room.txt") {
-
+		currentLevel = 5;
 	}	
-	
-	//player->setPosition(glm::vec2(playerStartPos.x * map->getTileSize(), playerStartPos.y * map->getTileSize()));
-
-
-	////  Cargar los enemigos del nuevo nivel (�esto deber�a leerse del archivo del nivel!)
-	//// Por ahora, lo ponemos como ejemplo:
-	/*if (levelFile == "levels/exterior.txt") {
-		Guard* guard = new Guard();
-		guard->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
-		guard->setPosition(glm::vec2(10 * map->getTileSize(), 35 * map->getTileSize()));
-		guard->setTileMap(map);
-		guard->setPlayer(player);
-		enemies.push_back(guard);
-	}*/
-
-	
 
 	loadEnemiesFromFile(levelFile);
 }
@@ -246,7 +164,6 @@ void Scene::loadEnemiesFromFile(const string& levelFile)
 
 		Enemy* newEnemy = nullptr;
 
-		// Usa un "factory" para crear el tipo de enemigo correcto
 		if (enemyType == "guard") {
 			newEnemy = new Guard();
 			/*int endX, endY;
@@ -262,32 +179,22 @@ void Scene::loadEnemiesFromFile(const string& levelFile)
 			int endX, endY;
 			fin >> endX >> endY;
 
-			// Solo haz la configuraci�n espec�fica de la c�mara aqu�
 			camera->setPatrolRoute(
 				glm::ivec2(startX * map->getTileSize(), startY * map->getTileSize()),
 				glm::ivec2(endX * map->getTileSize(), endY * map->getTileSize())
 			);
+			camera->setEnemies(&enemies);
 			newEnemy = camera;
-			/*camera->setPatrolRoute(glm::ivec2(5 * map->getTileSize(), 10 * map->getTileSize()),
-				glm::ivec2(10 * map->getTileSize(), 10 * map->getTileSize()));*/
-
-			/*newEnemy = camera;
-			enemies.push_back(newEnemy);*/
-
-			/*camera->setPosition(glm::vec2(x * map->getTileSize(),
-				y * map->getTileSize()));
-
-			camera->setTileMap(map);
-			camera->setPlayer(player);
-			enemies.push_back(camera);*/
+		}
+		else if (enemyType == "boss") {
+			Boss* boss = new Boss();
+			newEnemy = boss;
 		}
 
 		// Si se cre� un enemigo v�lido, inicial�zalo y a��delo a la lista
 		if (newEnemy != nullptr) {
 			newEnemy->init(glm::ivec2(0, 0), texProgram);
-			//if (!newEnemy->isMovable()) { 
 			newEnemy->setPosition(glm::vec2(startX * map->getTileSize(), startY * map->getTileSize()));
-			//}
 			newEnemy->setTileMap(map);
 			newEnemy->setPlayer(player);
 			enemies.push_back(newEnemy);
@@ -305,7 +212,6 @@ void Scene::restartGame()
 	delete player;
 	delete map;
 
-	// Reiniciar todo igual que en init()
 	init();
 }
 
@@ -326,6 +232,7 @@ void Scene::update(int deltaTime)
 			restartGame();
 		return;
 	}
+
 
 	const int ts = map->getTileSize();
 	glm::ivec4 playerBox(player->getPosition(), player->getSize());
@@ -411,7 +318,6 @@ void Scene::update(int deltaTime)
 			enemy->resetState();
 		}
 
-		// 3. Comprueba el ataque del jugador (puñetazo)
 		glm::ivec4 hitbox = player->getPunchHitbox();
 		if (hitbox.z > 0 && !enemy->isDead()) {
 			if (checkCollision(hitbox, glm::ivec4(enemy->getPosition(), enemy->getSize()))) {
@@ -457,7 +363,7 @@ void Scene::update(int deltaTime)
 		}
 	}
 
-	std::cout << playerPos.x << " " << playerPos.y << std::endl;
+	//std::cout << playerPos.x << " " << playerPos.y << std::endl;
 }
 
 void Scene::render()
@@ -492,7 +398,6 @@ void Scene::render()
 		p->render();
 	}
 
-
 	view = glm::mat4(1.0f);
 	texProgram.setUniformMatrix4f("view", view);
 	model = glm::mat4(1.0f);
@@ -500,7 +405,6 @@ void Scene::render()
 
 	hud->render();
 	rations->render();
-
 
 }
 
@@ -553,15 +457,17 @@ void Scene::giveAllItems() {
 
 void Scene::teleportToInterior() {
 	if (!map || !player) return;
-	loadLevel("levels/interior.txt", glm::vec2(15, 15));
+	loadLevel("levels/interior.txt", glm::vec2(47, 58));
 
 	//player->setPosition(glm::vec2(5 * map->getTileSize(), 5 * map->getTileSize()));
 }
 
 void Scene::teleportToBoss() {
 	if (!map || !player) return;
+	
+	loadLevel("levels/boss.txt", glm::vec2(15, 20));
 
-	loadLevel("levels/boss.txt", glm::vec2(15, 15));
+
 	//player->setPosition(glm::vec2(40 * map->getTileSize(), 10 * map->getTileSize()));
 }
 

@@ -26,9 +26,6 @@ public:
 
 	void init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram) override;
 	void update(int deltaTime) override;
-	//void resetState() override;
-
-	//bool readyToShoot() const;
 
 	bool attack(int deltaTime) override;
 
@@ -37,11 +34,6 @@ public:
 
 private: 
 
-	//bool attack(int deltaTime) override;
-	//void changeDirAnim(glm::vec2 dir) override;
-	//void stopMovingAnim() override;
-
-	//bool attack(int deltaTime) override;
 
 	ShaderProgram* shaderProgram;
 
@@ -53,10 +45,14 @@ private:
 
 	glm::vec2 targetPoint;
 
-	//Projectile shoot();
+
+	int currentTargetIndex = 0;
 
 
 	glm::vec2 findClosestShootingPoint();
+
+
+	
 
 
 };

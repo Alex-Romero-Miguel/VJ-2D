@@ -156,3 +156,11 @@ bool Guard::attack(int deltaTime)
 	}
 	return false; // No disparó
 }
+
+
+void Guard::setToAlarted() {
+	if (state == IDLE) {
+		state = ATTACKING;
+		updatePathToPlayer();
+	}
+}

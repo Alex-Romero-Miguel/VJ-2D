@@ -44,10 +44,8 @@ void Game::keyPressed(int key)
 	}
 	else if (key == GLFW_KEY_B) { // teleportar al Boss
 		scene.teleportToBoss();
-
 	}
-
-	else if (key == GLFW_KEY_R) { // teleportar al Boss
+	else if (key == GLFW_KEY_R) {
 		scene.restartGame();
 
 	}

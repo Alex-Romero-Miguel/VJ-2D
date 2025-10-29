@@ -52,7 +52,7 @@ void Dog::update(int deltaTime)
 	}
 
 	if (knockUp) {
-		verticalVel += 0.0012f * deltaTime; // gravedad
+		verticalVel += 0.0012f * deltaTime; 
 		verticalPos += verticalVel * deltaTime;
 
 		if (verticalPos > 0.f) {
@@ -62,7 +62,7 @@ void Dog::update(int deltaTime)
 
 		sprite->setPosition(glm::vec2(tileMapDispl.x + posEnemy.x,
 			tileMapDispl.y + posEnemy.y + verticalPos));
-		return; // se detiene el resto de la IA mientras cae
+		return; 
 	}
 
 
@@ -118,43 +118,7 @@ void Dog::changeDirAnim(glm::vec2 dir) {
 void Dog::stopMovingAnim() {
 }
 
-//void Dog::attack(int deltaTime)
-//{
-//	if (!player) return;
-//
-//	glm::vec2 playerPos = player->getPosition();
-//	glm::vec2 diff = playerPos - posEnemy;
-//	float distance = glm::length(diff);
-//
-//	// Si está lejos, deja de atacar
-//	if (distance > biteRange) {
-//		state = CHASING;
-//		return;
-//	}
-//
-//	// Actualizar cooldown de ataque
-//	if (attackCooldown > 0)
-//		attackCooldown -= deltaTime;
-//
-//	if (attackCooldown <= 0)
-//	{
-//		// Daño al jugadorasw
-//		player->takeDamage(damage);
-//		attackCooldown = 1000; // 1 segundo de cooldown
-//
-//		// Puedes poner aquí una animación de ataque
-//		switch (facing)
-//		{
-//		case FACE_LEFT:  sprite->changeAnimation(DOG_MOVE_LEFT); break;
-//		case FACE_RIGHT: sprite->changeAnimation(DOG_MOVE_RIGHT); break;
-//		case FACE_UP:    sprite->changeAnimation(DOG_MOVE_UP); break;
-//		case FACE_DOWN:  sprite->changeAnimation(DOG_MOVE_DOWN); break;
-//		}
-//
-//		// Pequeño empuje visual o movimiento de ataque (opcional)
-//		posEnemy += glm::normalize(diff) * 4.f;
-//	}
-//}
+
 
 bool Dog::attack(int deltaTime)
 {

@@ -74,13 +74,10 @@ private:
 
 	std::vector<Door> doors;
 
-	std::string currentSubroom;
-	std::string currentLevelFile;
-
 	int doorCooldown;
 
 	std::map<int, std::vector<Door>> allDoors;
-	int currentLevel;
+	int currentLevel = 1;
 };
 
 
