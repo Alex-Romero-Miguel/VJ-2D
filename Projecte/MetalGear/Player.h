@@ -69,7 +69,8 @@ private:
 
 	vector<Item*> inventory;
 	int current_item = 0;
-	// Weapon *weapon;
+	
+	Weapon *weapon;
 
 	FacingDir facing;
 
