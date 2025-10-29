@@ -31,6 +31,7 @@ Sprite::Sprite(const glm::vec2 &quadSize, const glm::vec2 &sizeInSpritesheet, Te
 	shaderProgram = program;
 	currentAnimation = -1;
 	position = glm::vec2(0.f);
+	scale = glm::vec2(1.0f, 1.0f);
 }
 
 void Sprite::update(int deltaTime)
@@ -50,6 +51,7 @@ void Sprite::update(int deltaTime)
 void Sprite::render() const
 {
 	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(position.x, position.y, 0.f));
+	model = glm::scale(model, glm::vec3(scale.x, scale.y, 1.f));
 	shaderProgram->setUniformMatrix4f("model", model);
 
 	shaderProgram->setUniform2f("texCoordDispl", texCoordDispl.x, texCoordDispl.y);
@@ -66,6 +68,11 @@ void Sprite::render() const
 void Sprite::free()
 {
 	glDeleteBuffers(1, &vbo);
+}
+
+void Sprite::setScale(const glm::vec2 &s)
+{
+    scale = s;
 }
 
 void Sprite::setNumberAnimations(int nAnimations)

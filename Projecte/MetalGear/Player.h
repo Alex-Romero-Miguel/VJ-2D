@@ -1,11 +1,11 @@
 #ifndef _PLAYER_INCLUDE
 #define _PLAYER_INCLUDE
 
-
+#include <iostream>
 #include "Sprite.h"
 #include "TileMap.h"
 #include "ShaderProgram.h"
-
+#include "Item.h"
 
 // Player is basically a Sprite that represents the player. As such it has
 // all properties it needs to track its movement, jumping, and collisions.
@@ -24,6 +24,9 @@ class Player
 {
 
 public:
+	Player();
+	~Player();
+
 	void init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram);
 	void update(int deltaTime);
 	void render();
@@ -36,19 +39,31 @@ public:
 
 	glm::ivec2 getPosition() const { return posPlayer; }
 	glm::ivec2 getSize() const { return glm::ivec2(16, 32); }
+	glm::ivec2 getCollisionSize() const { return colliderSize; };
+	glm::ivec2 getCollisionOffset() const { return colliderOffset; };
 	glm::ivec4 getPunchHitbox() const;
+
+	void heal(int amount);
+
+	void pickUpItem(Item *item);
+	void useItem();
+	void changeItem();
+	void consumeItem();
 
 	bool isDead() const;
 	int getHealth() const;
+	float getHealthPercentage() const;
 	
 private:
-	bool bJumping;
 	glm::ivec2 tileMapDispl, posPlayer;
-	int jumpAngle, startY;
 	Texture spritesheet;
 	Sprite *sprite;
 	TileMap *map;
 	ShaderProgram* shaderProgram;
+
+	vector<Item*> inventory;
+	int current_item = 0;
+	// Weapon *weapon;
 
 	FacingDir facing;
 
@@ -65,6 +80,12 @@ private:
 
 	static const int STARTING_HEALTH = 3;
 	int health; // Vida actual del jugador
+
+
+	glm::ivec2 colliderSize = glm::ivec2(16, 16);
+	glm::ivec2 colliderOffset = glm::ivec2(0, 16);
+
+	const int COLLISION_MARGIN = 2;
 };
 
 

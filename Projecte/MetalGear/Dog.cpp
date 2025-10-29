@@ -1,6 +1,5 @@
 #include "Dog.h"
 
-
 void Dog::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 {
 	spritesheet.loadFromFile("images/dog.png", TEXTURE_PIXEL_FORMAT_RGBA);
@@ -33,6 +32,7 @@ void Dog::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 	posEnemy = glm::vec2(0, 0);
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posEnemy.x), float(tileMapDispl.y + posEnemy.y)));
 
+	sprite->changeAnimation(DOG_IDLE);
 	
 	state = PATROLLING;
 
@@ -74,8 +74,7 @@ void Dog::update(int deltaTime)
 	switch (state)
 	{
 	case PATROLLING:
-		patrol(deltaTime);
-
+		sprite->changeAnimation(DOG_IDLE);
 		if (canSeePlayer()) {
 			state = CHASING;
 			updatePathToPlayer();
@@ -91,7 +90,6 @@ void Dog::update(int deltaTime)
 		attack(deltaTime);
 		break;
 	case RETURNING:
-		//patrol();
 		break;
 
 	case DEAD: 

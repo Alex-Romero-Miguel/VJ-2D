@@ -2,9 +2,8 @@
   "ExpandedNodes": [
     "",
     "\\Projecte",
-    "\\Projecte\\MetalGear",
-    "\\Projecte\\MetalGear\\shaders"
+    "\\Projecte\\MetalGear"
   ],
-  "SelectedNode": "\\Projecte\\MetalGear\\Scene.cpp",
+  "SelectedNode": "\\Projecte\\MetalGear.sln",
   "PreviewInSolutionExplorer": false
 }

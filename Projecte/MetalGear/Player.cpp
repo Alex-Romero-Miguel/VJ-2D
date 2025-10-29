@@ -4,10 +4,19 @@
 #include "Player.h"
 #include "Game.h"
 
+Player::Player()
+{
+	sprite = NULL;
+}
+
+Player::~Player()
+{
+	if(sprite != NULL)
+		delete sprite;
+}
 
 void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 {
-	bJumping = false;
 	spritesheet.loadFromFile("images/solid_snake_normal.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	
 	sprite = Sprite::createSprite(glm::ivec2(16, 32), glm::vec2(0.125, 0.125), &spritesheet, &shaderProgram);
@@ -83,6 +92,10 @@ void Player::update(int deltaTime)
 
 	if (dead) sprite->changeAnimation(DEAD);
 
+	if (Game::instance().getKey(GLFW_KEY_C)) {
+		// canviar item equipat
+	}
+
 	bool zDown = Game::instance().getKey(GLFW_KEY_Z);
 
 	if (punching) {
@@ -142,68 +155,76 @@ void Player::update(int deltaTime)
 		}
 	}
 
-	if(Game::instance().getKey(GLFW_KEY_LEFT) || Game::instance().getKey(GLFW_KEY_A))
+	
+	glm::vec2 nextPos = posPlayer; // Empezamos con la posición actual
+
+	if (Game::instance().getKey(GLFW_KEY_LEFT) || Game::instance().getKey(GLFW_KEY_A))
 	{
+		nextPos.x -= 2; // Calculamos la posible nueva posición
 		if (sprite->animation() != MOVE_LEFT) {
 			sprite->changeAnimation(MOVE_LEFT);
 			facing = FACE_LEFT;
 		}
-		posPlayer.x -= 2;
-		if(map->collisionMoveLeft(glm::ivec2(0, 16) + posPlayer, glm::ivec2(16, 16)))
-		{
-			posPlayer.x += 2;
-			sprite->changeAnimation(STAND_LEFT);
-		}
 	}
-	else if(Game::instance().getKey(GLFW_KEY_RIGHT) || Game::instance().getKey(GLFW_KEY_D))
+	else if (Game::instance().getKey(GLFW_KEY_RIGHT) || Game::instance().getKey(GLFW_KEY_D))
 	{
+		nextPos.x += 2;
 		if (sprite->animation() != MOVE_RIGHT) {
 			sprite->changeAnimation(MOVE_RIGHT);
 			facing = FACE_RIGHT;
 		}
-		posPlayer.x += 2;
-		if(map->collisionMoveRight(glm::ivec2(0,16) + posPlayer, glm::ivec2(16, 16)))
-		{
-			posPlayer.x -= 2;
-			sprite->changeAnimation(STAND_RIGHT);
-		}
 	}
-	else if(Game::instance().getKey(GLFW_KEY_UP) || Game::instance().getKey(GLFW_KEY_W))
+	else if (Game::instance().getKey(GLFW_KEY_UP) || Game::instance().getKey(GLFW_KEY_W))
 	{
+		nextPos.y -= 2;
 		if (sprite->animation() != MOVE_UP) {
 			sprite->changeAnimation(MOVE_UP);
 			facing = FACE_UP;
 		}
-		posPlayer.y -= 2;
-		if(map->collisionMoveUp(glm::ivec2(0, 16) + posPlayer, glm::ivec2(16, 16)))
-		{
-			posPlayer.y += 2;
-			sprite->changeAnimation(STAND_UP);
-		}
 	}
-	else if(Game::instance().getKey(GLFW_KEY_DOWN) || Game::instance().getKey(GLFW_KEY_S))
+	else if (Game::instance().getKey(GLFW_KEY_DOWN) || Game::instance().getKey(GLFW_KEY_S))
 	{
+		nextPos.y += 2;
 		if (sprite->animation() != MOVE_DOWN) {
 			sprite->changeAnimation(MOVE_DOWN);
 			facing = FACE_DOWN;
 		}
-		posPlayer.y += 2;
-		if(map->collisionMoveDown(glm::ivec2(0, 16) + posPlayer, glm::ivec2(16, 16)))
-		{
-			posPlayer.y -= 2;
-			sprite->changeAnimation(STAND_DOWN);
-		}
 	}
 	else
 	{
-		if(sprite->animation() == MOVE_LEFT )
-			sprite->changeAnimation(STAND_LEFT);
-		else if(sprite->animation() == MOVE_RIGHT )
-			sprite->changeAnimation(STAND_RIGHT);
-		else if(sprite->animation() == MOVE_UP )
-			sprite->changeAnimation(STAND_UP);
-		else if(sprite->animation() == MOVE_DOWN)
-			sprite->changeAnimation(STAND_DOWN);
+		// Si no se pulsa ninguna tecla, cambia a la animación de estar quieto
+		if (sprite->animation() == MOVE_LEFT) sprite->changeAnimation(STAND_LEFT);
+		else if (sprite->animation() == MOVE_RIGHT) sprite->changeAnimation(STAND_RIGHT);
+		else if (sprite->animation() == MOVE_UP) sprite->changeAnimation(STAND_UP);
+		else if (sprite->animation() == MOVE_DOWN) sprite->changeAnimation(STAND_DOWN);
+	}
+
+	// Comprobá la colisión en la posición de destino ANTES de mover al jugador
+	glm::ivec2 realNextPos = glm::ivec2(nextPos.x + colliderOffset.x, nextPos.y + colliderOffset.y);
+	if (nextPos.x != posPlayer.x) {
+		if (nextPos.x > posPlayer.x) { // Se mueve a la derecha
+			if (!map->collisionMoveRight(realNextPos, colliderSize)) {
+				posPlayer.x = nextPos.x;
+			}
+		}
+		else { // Se mueve a la izquierda
+			if (!map->collisionMoveLeft(realNextPos, colliderSize)) {
+				posPlayer.x = nextPos.x;
+			}
+		}
+	}
+
+	if (nextPos.y != posPlayer.y) {
+		if (nextPos.y > posPlayer.y) { // Se mueve hacia abajo
+			if (!map->collisionMoveDown(realNextPos, colliderSize)) {
+				posPlayer.y = nextPos.y;
+			}
+		}
+		else { // Se mueve hacia arriba
+			if (!map->collisionMoveUp(realNextPos, colliderSize)) {
+				posPlayer.y = nextPos.y;
+			}
+		}
 	}
 
 	zWasDown = zDown;
@@ -211,6 +232,7 @@ void Player::update(int deltaTime)
 	//std::cout << "Health: " << health << std::endl;
 	
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
+	std::cout << posPlayer.x/8.f << " " << posPlayer.y/8.f << std::endl;
 }
 
 void Player::render()
@@ -244,7 +266,7 @@ void Player::setTileMap(TileMap *tileMap)
 void Player::setPosition(const glm::vec2 &pos)
 {
 	posPlayer = pos;
-	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
+	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));	
 }
 
 
@@ -254,11 +276,41 @@ void Player::takeDamage(int amount)
 	if (isHurt) return; 
 	health -= amount;
 	if (health < 0) {
-		health = 0;
+		health = 0; // Evita que la vida sea negativa
 		dead = true;
 	}
 	isHurt = true;
 	hurtTimer = 500.f;
+}
+
+void Player::heal(int amount)
+{
+	health += amount;
+	if (health > STARTING_HEALTH)
+		health = STARTING_HEALTH;
+}
+
+void Player::pickUpItem(Item *item)
+{
+	inventory.push_back(item);
+}
+
+void Player::useItem()
+{
+	inventory[current_item]->use(this);
+}
+
+void Player::changeItem()
+{
+	current_item += 1;
+	int max = inventory.size();
+	if (current_item >= max) 
+		current_item = 0;
+}
+
+void Player::consumeItem() 
+{
+	inventory.erase(inventory.begin() + current_item);
 }
 
 bool Player::isDead() const
@@ -269,6 +321,11 @@ bool Player::isDead() const
 int Player::getHealth() const
 {
 	return health;
+}
+
+float Player::getHealthPercentage() const
+{
+	return float(health) / STARTING_HEALTH;
 }
 
 

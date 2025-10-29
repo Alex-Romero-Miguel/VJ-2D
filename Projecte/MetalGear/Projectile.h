@@ -7,7 +7,6 @@
 class Projectile
 {
 public:
-
 	void init(const glm::vec2& pos, const glm::vec2& dir, ShaderProgram& shaderProgram);
 	void update(int deltaTime, TileMap* map);
 	void render();

@@ -6,6 +6,7 @@
 void Game::init()
 {
 	bPlay = true;
+	paused = false;
 	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 	scene.init();
 }
@@ -38,6 +39,7 @@ void Game::keyPressed(int key)
 		scene.giveAllItems();
 	}
 	else if (key == GLFW_KEY_K) { // Teleportar a primer mapa interior
+		
 		scene.teleportToInterior();
 	}
 	else if (key == GLFW_KEY_B) { // teleportar al Boss
@@ -45,10 +47,12 @@ void Game::keyPressed(int key)
 
 	}
 
+	else if (key == GLFW_KEY_R) { // teleportar al Boss
+		scene.restartGame();
+
+	}
+
 	keys[key] = true;
-
-	
-
 }
 
 void Game::keyReleased(int key)

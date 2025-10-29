@@ -4,9 +4,6 @@
 #include <glm/glm.hpp>
 #include "Texture.h"
 #include "ShaderProgram.h"
-#include <deque>
-#include <map>
-#include <vector>
 
 
 // Class Tilemap is capable of loading a tile map from a text file in a very
@@ -39,7 +36,6 @@ public:
 
 
 	bool isWalkable(int x, int y) const;
-	/*std::deque<glm::ivec2> findPath(glm::ivec2 start, glm::ivec2 goal);*/
 	
 private:
 	bool loadLevel(const string &levelFile);
@@ -57,7 +53,6 @@ private:
 	glm::vec2 tileTexSize;
 	int *map;
 	int lastWalkable;
-
 };
 
 
