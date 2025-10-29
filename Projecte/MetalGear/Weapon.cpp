@@ -1,13 +1,13 @@
-#include "Rations.h"
+#include "Weapon.h"
 
-Rations::Rations(ShaderProgram *shaderProgram)
+Weapon::Weapon(ShaderProgram *shaderProgram)
 {
     inWorldSpritesheet.loadFromFile("images/items_weapons_other_transparent.png", TEXTURE_PIXEL_FORMAT_RGBA);
 
     inWorldSprite = Sprite::createSprite(glm::ivec2(16, 16), glm::vec2(0.0625f, 0.125f), &inWorldSpritesheet, shaderProgram);
     inWorldSprite->setNumberAnimations(1);
     inWorldSprite->setAnimationSpeed(0, 1);
-    inWorldSprite->addKeyframe(0, glm::vec2(0.0f, 0.125f));
+    inWorldSprite->addKeyframe(0, glm::vec2(0.0f, 0.375f));
     inWorldSprite->changeAnimation(0);
 
     inHudSpritesheet.loadFromFile("images/hud_elements.png", TEXTURE_PIXEL_FORMAT_RGBA);
@@ -15,27 +15,23 @@ Rations::Rations(ShaderProgram *shaderProgram)
     inHudSprite = Sprite::createSprite(glm::ivec2(72, 8), glm::vec2(0.05625f, 0.0203125f), &inHudSpritesheet, shaderProgram);
     inHudSprite->setNumberAnimations(1);
     inHudSprite->setAnimationSpeed(0, 1);
-    inHudSprite->addKeyframe(0, glm::vec2(0.225f, 0.878125f));
+    inHudSprite->addKeyframe(0, glm::vec2(0.0f, 0.525f));
     inHudSprite->changeAnimation(0);
 }
 
-Rations *Rations::createRations(ShaderProgram *shaderProgram)
+Weapon *Weapon::createWeapon(ShaderProgram *shaderProgram)
 {
-    Rations *rations = new Rations(shaderProgram);
+    Weapon *weapon = new Weapon(shaderProgram);
 
-    return rations;
+    return weapon;
 }
 
-Rations::~Rations()
+Weapon::~Weapon()
 {
     
 }
 
-void Rations::effect()
+void Weapon::effect()
 {
-    if(player->getHealthPercentage() != 1.0f)
-    {
-        player->heal(healingAmount);
-        player->consumeItem();
-    }
+    
 }

@@ -8,7 +8,7 @@
 #include "Camera.h"
 
 #include <fstream>
-#include <sstream>s
+#include <sstream>
 
 #define SCREEN_X 0
 #define SCREEN_Y 0
@@ -46,6 +46,11 @@ Scene::~Scene()
 	projectiles.clear();
 	if(hud != NULL)
 		delete hud; 
+	for (Item* item : items)
+	{
+		delete item;
+	}
+	items.clear();
 	
 }
 
@@ -66,9 +71,18 @@ void Scene::init()
 
 	hud = new HUD();
 	hud->init(tile_size, glm::ivec2(SCREEN_X, SCREEN_Y), glm::ivec2(HUD_X_TILES * tile_size, map_size.y + HUD_Y_TILES * tile_size),player, texProgram);
-	rations = Rations::createRations(&texProgram);
+	
+	Rations *rations = Rations::createRations(&texProgram);
+	rations->init(glm::ivec2(SCREEN_X, SCREEN_Y), player);
 	rations->setPosition(glm::vec2((INIT_PLAYER_X_TILES + 4) * tile_size, INIT_PLAYER_Y_TILES * tile_size));
 	rations->setTileMap(map);
+	items.push_back(rations);
+
+	Weapon *weapon = Weapon::createWeapon(&texProgram);
+	weapon->init(glm::ivec2(SCREEN_X, SCREEN_Y), player);
+	weapon->setPosition(glm::vec2((INIT_PLAYER_X_TILES + 6) * tile_size, (INIT_PLAYER_Y_TILES + 1) * tile_size));
+	weapon->setTileMap(map);
+	items.push_back(weapon);
 	
 	/*
 	const int NUM_ENEMIES = 3;
@@ -116,8 +130,8 @@ void Scene::init()
 	// currentTime = 0.0f;
 	cameraPos = glm::vec2(0,0);
 	loadLevel("levels/exterior.txt");
-	playerStartPos = glm::ivec2(15, 15);
-	projection = glm::ortho(0.f, float(SCREEN_WIDTH+ SCREEN_X), float(SCREEN_HEIGHT+ SCREEN_Y), 0.f);
+	playerStartPos = glm::ivec2(INIT_PLAYER_X_TILES, INIT_PLAYER_Y_TILES);
+	projection = glm::ortho(0.f, float(SCREEN_WIDTH+ SCREEN_X), float(SCREEN_HEIGHT+ SCREEN_Y)+(hud->getHeight() * tile_size), 0.f);
 	deathTimer = 1000;
 }
 
@@ -286,7 +300,6 @@ void Scene::update(int deltaTime)
 
 	// Actualizamos al jugador
 	player->update(deltaTime);
-	hud->update(deltaTime);
 
 	for (auto it = enemies.begin(); it != enemies.end(); /* El incremento se hace dentro */)
 	{
@@ -351,6 +364,24 @@ void Scene::update(int deltaTime)
 			++it;
 		}
 	}
+
+	for (Item* i : items) {
+		if(i->checkCollision(player->getPosition() + glm::ivec2(0, 16), glm::ivec2(16, 16) )) {
+			i->pickUp();
+			if(typeid(i) == typeid(Weapon))
+				player->pickUpWeapon((Weapon*)i);
+			else
+				player->pickUpItem(i);
+		};
+	}
+
+	Item *item = player->getCurrentItem();
+	if(item) hud->setItem(item);
+
+	Weapon *weapon = player->getWeapon();
+	// if(weapon) hud->setWeapon(weapon);
+
+	hud->update(deltaTime);
 }
 
 void Scene::render()
@@ -373,6 +404,7 @@ void Scene::render()
 	texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
 
 	map->render();
+	for (Item* i : items) i->renderInWorld();
 	
 	for (Enemy* enemy : enemies)
 	{
@@ -395,7 +427,6 @@ void Scene::render()
 		p->render();
 	}
 	hud->render();
-	rations->render();
 }
 
 void Scene::initShaders()

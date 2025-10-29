@@ -10,6 +10,7 @@
 #include "Projectile.h"
 #include "HUD.h"
 #include "Rations.h"
+#include "Weapon.h"
 
 
 // Scene contains all the entities of our game.
@@ -63,7 +64,7 @@ private:
 
 	glm::ivec2 playerStartPos;
 
-	Rations *rations;
+	vector<Item*> items;
 
 };
 

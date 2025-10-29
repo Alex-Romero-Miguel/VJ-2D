@@ -1,11 +1,2 @@
-﻿  Player.cpp
-C:\Users\ARM\Documents\GitHub\VJ-2D\Projecte\MetalGear\Player.cpp(274,14): warning C4244: '=': conversión de 'float' a 'int'; posible pérdida de datos
-  Projectile.cpp
-  Rations.cpp
-  Generando código...
-LINK : warning LNK4098: la biblioteca predeterminada'MSVCRT' entra en conflicto con otras bibliotecas; use la biblioteca /NODEFAULTLIB:biblioteca
-SOIL.lib(image_DXT.obj) : warning LNK4099: no se encontró PDB '' con 'SOIL.lib(image_DXT.obj)' o en ''; se vinculará el objeto sin tener en cuenta información de depuración
-SOIL.lib(image_helper.obj) : warning LNK4099: no se encontró PDB '' con 'SOIL.lib(image_helper.obj)' o en ''; se vinculará el objeto sin tener en cuenta información de depuración
-SOIL.lib(SOIL.obj) : warning LNK4099: no se encontró PDB '' con 'SOIL.lib(SOIL.obj)' o en ''; se vinculará el objeto sin tener en cuenta información de depuración
-SOIL.lib(stb_image_aug.obj) : warning LNK4099: no se encontró PDB '' con 'SOIL.lib(stb_image_aug.obj)' o en ''; se vinculará el objeto sin tener en cuenta información de depuración
+﻿  Scene.cpp
   MetalGear.vcxproj -> C:\Users\ARM\Documents\GitHub\VJ-2D\Projecte\Debug\MetalGear.exe

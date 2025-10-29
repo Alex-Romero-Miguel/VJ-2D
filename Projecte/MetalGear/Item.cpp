@@ -2,26 +2,48 @@
 
 Item::Item()
 {
-    sprite = NULL;
+    inWorldSprite = NULL;
+    inHudSprite = NULL;
+    map = NULL;
+    player = NULL;
 }
 
 Item::~Item()
 {
-    if(sprite != NULL)
-        delete sprite;
+    if(inWorldSprite != NULL)
+        delete inWorldSprite;
+    if(inHudSprite != NULL)
+        delete inHudSprite;
+    if(map != NULL)
+        delete map;
+    if(player != NULL)
+        delete player;
 }
 
-void Item::init(const int ts, const glm::ivec2 &tileMapPos)
+void Item::init(const glm::ivec2& tileMapPos, Player* playerReference)
 {
-    tileSize = ts;
     tileMapDispl = tileMapPos;
-	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posItem.x), float(tileMapDispl.y + posItem.y)));
+    player = playerReference;
 }
 
-void Item::render()
+void Item::update(int deltaTime)
 {
-    if (!picked)
-        sprite->render();
+    if (picked)
+        inHudSprite->update(deltaTime);
+    else
+        inWorldSprite->update(deltaTime);
+}
+
+void Item::renderInWorld()
+{
+    if(!picked)
+        inWorldSprite->render();
+}
+
+void Item::renderInHud()
+{
+    if(picked)
+        inHudSprite->render();
 }
 
 void Item::setTileMap(TileMap *tileMap)
@@ -31,28 +53,20 @@ void Item::setTileMap(TileMap *tileMap)
 
 void Item::setPosition(const glm::vec2 &pos)
 {
-	posItem = pos;
-	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posItem.x), float(tileMapDispl.y + posItem.y)));
+    if(picked)
+        inHudSprite->setPosition(glm::vec2(tileMapDispl.x + pos.x, tileMapDispl.y + pos.y));
+    else 
+    {
+        posItem = pos;
+        inWorldSprite->setPosition(glm::vec2(float(tileMapDispl.x + posItem.x), float(tileMapDispl.y + posItem.y)));
+    }
 }
 
-bool Item::collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size) const
+bool Item::checkCollision(const glm::ivec2 &pos, const glm::ivec2 &size) const
 {
-    return true;
-}
-
-bool Item::collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size) const
-{
-    return true;
-}
-
-bool Item::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, int *posY) const
-{
-    return true;
-}
-
-bool Item::collisionMoveUp(const glm::ivec2 &pos, const glm::ivec2 &size, int *posY) const
-{
-    return true;
+    bool overlap_x = pos.x < posItem.x + 16 && pos.x + size.x > posItem.x;
+    bool overlap_y = pos.y < posItem.y + 16 && pos.y + size.y > posItem.y;
+    return !picked && overlap_x && overlap_y;
 }
 
 void Item::pickUp()
@@ -60,7 +74,7 @@ void Item::pickUp()
     picked = true;
 }
 
-void Item::use(Player *player) 
+void Item::use() 
 {
-    effect(player);
+    effect();
 }

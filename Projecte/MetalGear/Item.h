@@ -12,8 +12,10 @@ public:
     Item();
     ~Item();
 
-    void init(const int ts, const glm::ivec2 &tileMapPos);
-    void render();
+    void init(const glm::ivec2 &tileMapPos, Player *playerReference);
+    void update(int deltaTime);
+    void renderInWorld();
+    void renderInHud();
 
 	void setTileMap(TileMap *tileMap);
 	void setPosition(const glm::vec2 &pos);
@@ -21,22 +23,19 @@ public:
 	glm::ivec2 getPosition() const { return posItem; }
 	glm::ivec2 getSize() const { return glm::ivec2(16, 16); }
     
-	bool collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size) const;
-	bool collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size) const;
-	bool collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, int *posY) const;
-	bool collisionMoveUp(const glm::ivec2 &pos, const glm::ivec2 &size, int *posY) const;
+	bool checkCollision(const glm::ivec2 &pos, const glm::ivec2 &size) const;
     
     void pickUp();
-    void use(Player *player);
-    virtual void effect(Player *player) = 0;
+    void use();
+    virtual void effect() = 0;
 
 protected:
-    bool picked;
+    bool picked = false;
     glm::ivec2 tileMapDispl, posItem;
-	Texture spritesheet;
-    Sprite *sprite;
+	Texture inWorldSpritesheet, inHudSpritesheet;
+    Sprite  *inWorldSprite,     *inHudSprite;
 	TileMap *map;
-    int tileSize;
+    Player *player;
 
 };
 

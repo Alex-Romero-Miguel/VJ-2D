@@ -29,6 +29,7 @@
     <ClInclude Include="HUD.h"/>
     <ClInclude Include="Item.h"/>
     <ClInclude Include="Rations.h"/>
+    <ClInclude Include="Weapon.h"/>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AStar.cpp" />
@@ -49,6 +50,7 @@
     <ClCompile Include="HUD.cpp"/>
     <ClCompile Include="Item.cpp"/>
     <ClCompile Include="Rations.cpp"/>
+    <ClCompile Include="Weapon.cpp"/>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{5BE6CA2A-E5A8-40CC-9015-047CE0C78036}</ProjectGuid>

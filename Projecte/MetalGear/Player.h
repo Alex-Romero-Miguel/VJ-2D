@@ -10,6 +10,9 @@
 // Player is basically a Sprite that represents the player. As such it has
 // all properties it needs to track its movement, jumping, and collisions.
 
+class Item;
+class Weapon;
+
 enum PlayerAnims
 {
 	STAND_LEFT, STAND_RIGHT, STAND_UP, STAND_DOWN,
@@ -44,6 +47,7 @@ public:
 	void heal(int amount);
 
 	void pickUpItem(Item *item);
+	void pickUpWeapon(Weapon *weapon);
 	void useItem();
 	void changeItem();
 	void consumeItem();
@@ -51,6 +55,8 @@ public:
 	bool isDead() const;
 	int getHealth() const;
 	float getHealthPercentage() const;
+	Item* getCurrentItem() const;
+	Weapon* getWeapon() const;
 	
 private:
 	glm::ivec2 tileMapDispl, posPlayer;
@@ -61,7 +67,8 @@ private:
 
 	vector<Item*> inventory;
 	int current_item = 0;
-	// Weapon *weapon;
+
+	Weapon *weapon;
 
 	FacingDir facing;
 
