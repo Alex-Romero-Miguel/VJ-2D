@@ -2,7 +2,22 @@ Huijing Cheng
 Álex Romero Miguel
 
 Funcionalitats:
--
+- Moviment de Solid Snake amb tecles WASD. Donar cops de puny amb Z
+- Tres enemics: guard, dog, camera. 
+- Boss: machine gun kid
+- Els enemics poden detectar i perseguir al jugador. El guard y el boss poden disparar. 
+- Sistema de items implementats
+- Interficie grafica per mostrar vida, armes y objectes
+- Tecles per saltar continguts: G, H, K, B
+- Si snake perd la vida, torna a començar el joc. 
+
 
 Instruccions:
-1. 
+Fletxes / WASD: moure Snake
+Z: atacar amb cop de puny o arma
+X: utilitzar l’objecte actiu
+G: activar/desactivar God Mode
+H: restaurar tota la vida
+K: teletransportar-se al primer interior
+B: teletransportar-se al boss final
+ESC: sortir del joc
