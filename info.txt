@@ -13,4 +13,11 @@ Funcionalitats:
 
 
 Instruccions:
-1. 
+Fletxes / WASD: moure Snake
+Z: atacar amb cop de puny o arma
+X: utilitzar l’objecte actiu
+G: activar/desactivar God Mode
+H: restaurar tota la vida
+K: teletransportar-se al primer interior
+B: teletransportar-se al boss final
+ESC: sortir del joc
