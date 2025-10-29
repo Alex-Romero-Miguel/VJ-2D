@@ -28,7 +28,28 @@ void Game::keyPressed(int key)
 {
 	if(key == GLFW_KEY_ESCAPE) // Escape code
 		bPlay = false;
+	else if (key == GLFW_KEY_G) { // God Mode
+		scene.toggleGodMode();
+
+	}
+	else if (key == GLFW_KEY_H) { // Heal, restaurar vida
+		scene.fullHeal();
+	}
+	else if (key == GLFW_KEY_I) { // Item, Añadir todos los ítems
+		scene.giveAllItems();
+	}
+	else if (key == GLFW_KEY_K) { // Teleportar a primer mapa interior
+		scene.teleportToInterior();
+	}
+	else if (key == GLFW_KEY_B) { // teleportar al Boss
+		scene.teleportToBoss();
+
+	}
+
 	keys[key] = true;
+
+	
+
 }
 
 void Game::keyReleased(int key)
