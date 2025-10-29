@@ -39,9 +39,6 @@ public:
 	void resetHealth() { health = STARTING_HEALTH; dead = false; }
 
 	void takeDamage(int amount);
-	void resetHealth() { health = STARTING_HEALTH; dead = false; }
-
-	void takeDamage(int amount);
 
 	glm::ivec2 getPosition() const { return posPlayer; }
 	glm::ivec2 getSize() const { return glm::ivec2(16, 32); }
@@ -80,13 +77,6 @@ private:
 	int  punchElapsedMs = 0;
 	int  punchDurationMs = 250;
 
-	bool isHurt = false;
-	int hurtTimer = 0;
-	float hurtBlinkTime = 0.f;
-
-	bool dead = false;
-
-	static const int STARTING_HEALTH = 3;
 	bool isHurt = false;
 	int hurtTimer = 0;
 	float hurtBlinkTime = 0.f;

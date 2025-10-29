@@ -31,22 +31,8 @@ public:
 
 	void restartGame();
 
-	void loadLevel(const string& levelFile);
-	void loadEnemiesFromFile(const string& levelFile);
-
-	void restartGame();
 	void update(int deltaTime);
 	void render();
-
-	bool checkCollision(const glm::ivec4& a, const glm::ivec4& b);
-
-	void toggleGodMode();
-	void fullHeal();
-	void giveAllItems();
-	void teleportToInterior();
-	void teleportToBoss();
-
-	bool isGodMode() const { return godMode; }
 
 	bool checkCollision(const glm::ivec4& a, const glm::ivec4& b);
 

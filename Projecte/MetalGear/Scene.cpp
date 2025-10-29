@@ -309,29 +309,6 @@ void Scene::update(int deltaTime)
 		return;
 	}
 
-	glm::vec2 playerPos = player->getPosition();
-
-	// Si el jugador se sale por la derecha
-	if (playerPos.x + player->getSize().x > cameraPos.x + SCREEN_WIDTH) {
-		cameraPos.x +=SCREEN_WIDTH; // Mueve la c�mara una pantalla a la derecha
-		player->setPosition(glm::vec2(playerPos.x + player->getSize().x + 1, playerPos.y)); // Coloca al jugador al inicio de la nueva pantalla
-	}
-	// Si el jugador se sale por la izquierda
-	else if (playerPos.x < cameraPos.x ) {
-		cameraPos.x -=SCREEN_WIDTH; // Mueve la c�mara a la izquierda
-		player->setPosition(glm::vec2(playerPos.x - player->getSize().x - 1, playerPos.y)); // Coloca al jugador al final de la nueva pantalla
-	}
-	// Si el jugador se sale por abajo
-	else if (playerPos.y + player->getSize().y > cameraPos.y + SCREEN_HEIGHT) {
-		cameraPos.y += SCREEN_HEIGHT; // Mueve la c�mara una pantalla hacia abajo
-		player->setPosition(glm::vec2(playerPos.x, playerPos.y + player->getSize().y + 1)); // Coloca al jugador al inicio de la nueva pantalla
-	}
-	// Si el jugador se sale por arriba
-	else if (playerPos.y < cameraPos.y) {
-		cameraPos.y -= SCREEN_HEIGHT; // Mueve la c�mara una pantalla hacia arriba
-		player->setPosition(glm::vec2(playerPos.x, playerPos.y - player->getSize().y - 1));
-	}
-
 	// Actualizamos al jugador
 	player->update(deltaTime);
 
@@ -423,9 +400,6 @@ void Scene::render()
 	glm::mat4 view, model;
 
 	//glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-	glm::mat4 view, model;
-
-	//glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	texProgram.use();
 	texProgram.setUniformMatrix4f("projection", projection);
@@ -438,13 +412,6 @@ void Scene::render()
 	texProgram.setUniformMatrix4f("view", view);
 	texProgram.setUniformMatrix4f("model", model);
 
-	
-	
-	view = glm::translate(glm::mat4(1.0f), glm::vec3(-cameraPos.x, -cameraPos.y, 0.f));
-	model = glm::mat4(1.0f);
-	
-	texProgram.setUniformMatrix4f("view", view);
-	texProgram.setUniformMatrix4f("model", model);
 
 	texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
 
@@ -539,34 +506,4 @@ void Scene::teleportToBoss() {
 
 	//player->setPosition(glm::vec2(40 * map->getTileSize(), 10 * map->getTileSize()));
 }
-
-void Scene::toggleGodMode() {
-	godMode = !godMode;
-	std::cout << (godMode ? "God mode ON" : "God mode OFF") << std::endl;
-}
-
-void Scene::fullHeal() {
-	if (player) {
-		player->resetHealth();
-	}
-}
-
-void Scene::giveAllItems() {
-	std::cout << "Todos los �tems a�adidos (placeholder)" << std::endl;
-	// Aqu� puedes a�adir objetos al inventario si ya tienes esa mec�nica.
-}
-
-void Scene::teleportToInterior() {
-	if (!map || !player) return;
-	loadLevel("levels/interior.txt");
-
-	//player->setPosition(glm::vec2(5 * map->getTileSize(), 5 * map->getTileSize()));
-}
-
-void Scene::teleportToBoss() {
-	if (!map || !player) return;
-
-	//player->setPosition(glm::vec2(40 * map->getTileSize(), 10 * map->getTileSize()));
-}
-
 
