@@ -93,7 +93,11 @@ void Player::update(int deltaTime)
 	if (dead) sprite->changeAnimation(DEAD);
 
 	if (Game::instance().getKey(GLFW_KEY_C)) {
-		// canviar item equipat
+		changeItem();
+	}
+
+	if (Game::instance().getKey(GLFW_KEY_X)) {
+		useItem();
 	}
 
 	bool zDown = Game::instance().getKey(GLFW_KEY_Z);
@@ -323,22 +327,45 @@ void Player::pickUpItem(Item *item)
 	inventory.push_back(item);
 }
 
+void Player::pickUpWeapon(Weapon *w)
+{
+	weapon = w;
+}
+
 void Player::useItem()
 {
-	inventory[current_item]->use(this);
+	if(!inventory.empty())
+		inventory[current_item]->use();
 }
 
 void Player::changeItem()
 {
 	current_item += 1;
-	int max = inventory.size();
-	if (current_item >= max) 
+	if (current_item >= inventory.size()) 
 		current_item = 0;
+}
+
+Item* Player::getCurrentItem() const
+{
+	if(inventory.empty())
+		return NULL;
+	else
+		return inventory[current_item];
+}
+
+Weapon* Player::getWeapon() const
+{
+	if(weapon)
+		return weapon;
+	else
+		return NULL;
 }
 
 void Player::consumeItem() 
 {
 	inventory.erase(inventory.begin() + current_item);
+	if (current_item >= inventory.size())
+		current_item = 0;
 }
 
 bool Player::isDead() const

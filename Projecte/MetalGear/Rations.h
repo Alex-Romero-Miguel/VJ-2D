@@ -13,7 +13,7 @@ public:
     static Rations *createRations(ShaderProgram *shaderProgram);
     ~Rations();
 
-    void effect(Player *player) override;
+    void effect() override;
 
 private:
     int healingAmount = 1000;
