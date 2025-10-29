@@ -42,6 +42,8 @@ public:
 
 	glm::ivec2 getPosition() const { return posPlayer; }
 	glm::ivec2 getSize() const { return glm::ivec2(16, 32); }
+	glm::ivec2 getCollisionSize() const { return colliderSize; };
+	glm::ivec2 getCollisionOffset() const { return colliderOffset; };
 	glm::ivec4 getPunchHitbox() const;
 
 	void heal(int amount);
@@ -67,8 +69,7 @@ private:
 
 	vector<Item*> inventory;
 	int current_item = 0;
-
-	Weapon *weapon;
+	// Weapon *weapon;
 
 	FacingDir facing;
 
@@ -85,6 +86,11 @@ private:
 
 	static const int STARTING_HEALTH = 3;
 	int health; // Vida actual del jugador
+
+	glm::ivec2 colliderSize = glm::ivec2(16, 16);
+	glm::ivec2 colliderOffset = glm::ivec2(0, 16);
+
+	//const int COLLISION_MARGIN = 2;
 };
 
 

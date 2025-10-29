@@ -8,22 +8,25 @@ void Camera::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram) {
 	sprite->setNumberAnimations(8);
 
 	sprite->setAnimationSpeed(CAMERA_UP, 8);
-	sprite->addKeyframe(CAMERA_UP, glm::vec2(0.0f, 0.0f));
+	sprite->addKeyframe(CAMERA_UP, glm::vec2(0.0f, 0.25f));
+
 	sprite->setAnimationSpeed(CAMERA_DOWN, 8);
-	sprite->addKeyframe(CAMERA_DOWN, glm::vec2(0.25f, 0.0f));
+	sprite->addKeyframe(CAMERA_DOWN, glm::vec2(0.0f, 0.0f));
+
 	sprite->setAnimationSpeed(CAMERA_LEFT, 8);
-	sprite->addKeyframe(CAMERA_LEFT, glm::vec2(0.5f, 0.0f));
+	sprite->addKeyframe(CAMERA_LEFT, glm::vec2(0.0f, 0.5f));
+
 	sprite->setAnimationSpeed(CAMERA_RIGHT, 8);
-	sprite->addKeyframe(CAMERA_RIGHT, glm::vec2(0.75f, 0.0f));
+	sprite->addKeyframe(CAMERA_RIGHT, glm::vec2(0.0f, 0.75f));
 
 	sprite->setAnimationSpeed(CAMERA_ALERT_UP, 8);
-	sprite->addKeyframe(CAMERA_ALERT_UP, glm::vec2(0.5f, 0.0f));
+	sprite->addKeyframe(CAMERA_ALERT_UP, glm::vec2(0.5f, 0.25f));
 	sprite->setAnimationSpeed(CAMERA_ALERT_DOWN, 8);
 	sprite->addKeyframe(CAMERA_ALERT_DOWN, glm::vec2(0.5f, 0.0f));
 	sprite->setAnimationSpeed(CAMERA_ALERT_LEFT, 8);
-	sprite->addKeyframe(CAMERA_ALERT_LEFT, glm::vec2(0.5f, 0.0f));
+	sprite->addKeyframe(CAMERA_ALERT_LEFT, glm::vec2(0.5f, 0.5f));
 	sprite->setAnimationSpeed(CAMERA_ALERT_RIGHT, 8);
-	sprite->addKeyframe(CAMERA_ALERT_RIGHT, glm::vec2(0.5f, 0.0f));
+	sprite->addKeyframe(CAMERA_ALERT_RIGHT, glm::vec2(0.5f, 0.75f));
 
 	sprite->changeAnimation(0);
 
@@ -39,10 +42,21 @@ void Camera::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram) {
 	moveSpeed = 1;
 	movable = true;
 
+	visionRange = 50.f;
+	visionAngle = 30.f;
+
 }
 
 void Camera::update(int deltaTime) {
 	sprite->update(deltaTime);
+
+	if (state == ALERTED) {
+		alertTimer -= deltaTime;
+		if (alertTimer <= 0) {
+			state = PATROLLING;
+			sprite->changeAnimation(CAMERA_DOWN);
+		}
+	}
 
 	switch (state) {
 	case PATROLLING:
@@ -64,6 +78,7 @@ void Camera::update(int deltaTime) {
 		
 		if (canSeePlayer()) {
 			state = ALERTED;
+			alertTimer = 3000; // 5 segundos de alerta
 			switch (facing) {
 			case FACE_UP:
 				sprite->changeAnimation(CAMERA_ALERT_UP);
@@ -79,11 +94,18 @@ void Camera::update(int deltaTime) {
 				break;
 			}
 
-			std::cout << "Camera alerted at position: " << posEnemy.x << ", " << posEnemy.y << std::endl;
+			//std::cout << "Camera alerted at position: " << posEnemy.x << ", " << posEnemy.y << std::endl;
 		}
 		break;
 	case ALERTED:
-		// Stop moving. No hacer nada
+		// Stop moving. Llamar a los guards
+
+		for (Enemy* e : *enemies) {
+			// avisa a los guardias
+			if (e->isGuard()){
+				e->setToAlarted();
+			}
+		}
 		break;
 
 	}

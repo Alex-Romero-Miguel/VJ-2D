@@ -70,9 +70,9 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 	sprite->addKeyframe(PUNCH_DOWN, glm::vec2(0.0f, 0.0f));
 	sprite->addKeyframe(PUNCH_DOWN, glm::vec2(0.0f, 0.5f));
 
-	sprite->setAnimationSpeed(PUNCH_DOWN, 8);
+	sprite->setAnimationSpeed(DEAD, 8);
 	sprite->addKeyframe(DEAD, glm::vec2(0.0f, 0.75f));
-	sprite->addKeyframe(PUNCH_DOWN, glm::vec2(0.75f, 0.75f));
+	sprite->addKeyframe(DEAD, glm::vec2(0.75f, 0.75f));
 
 	sprite->changeAnimation(1);
 	tileMapDispl = tileMapPos;
@@ -170,72 +170,87 @@ void Player::update(int deltaTime)
 		}
 	}
 
-	if(Game::instance().getKey(GLFW_KEY_LEFT) || Game::instance().getKey(GLFW_KEY_A))
+	if (isHurt) {
+		hurtTimer -= deltaTime;
+		hurtBlinkTime += deltaTime * 0.01f; 
+
+		if (hurtTimer <= 0) {
+			isHurt = false;
+			hurtTimer = 0;
+			hurtBlinkTime = 0.f;
+		}
+	}
+
+	
+	glm::vec2 nextPos = posPlayer; // Empezamos con la posici�n actual
+
+	if (Game::instance().getKey(GLFW_KEY_LEFT) || Game::instance().getKey(GLFW_KEY_A))
 	{
+		nextPos.x -= 2; // Calculamos la posible nueva posici�n
 		if (sprite->animation() != MOVE_LEFT) {
 			sprite->changeAnimation(MOVE_LEFT);
 			facing = FACE_LEFT;
 		}
-		posPlayer.x -= 2;
-		if(map->collisionMoveLeft(glm::ivec2(0, 16) + posPlayer, glm::ivec2(16, 16)))
-		if(map->collisionMoveLeft(glm::ivec2(0, 16) + posPlayer, glm::ivec2(16, 16)))
-		{
-			posPlayer.x += 2;
-			sprite->changeAnimation(STAND_LEFT);
-		}
 	}
-	else if(Game::instance().getKey(GLFW_KEY_RIGHT) || Game::instance().getKey(GLFW_KEY_D))
+	else if (Game::instance().getKey(GLFW_KEY_RIGHT) || Game::instance().getKey(GLFW_KEY_D))
 	{
+		nextPos.x += 2;
 		if (sprite->animation() != MOVE_RIGHT) {
 			sprite->changeAnimation(MOVE_RIGHT);
 			facing = FACE_RIGHT;
 		}
-		posPlayer.x += 2;
-		if(map->collisionMoveRight(glm::ivec2(0,16) + posPlayer, glm::ivec2(16, 16)))
-		if(map->collisionMoveRight(glm::ivec2(0,16) + posPlayer, glm::ivec2(16, 16)))
-		{
-			posPlayer.x -= 2;
-			sprite->changeAnimation(STAND_RIGHT);
-		}
 	}
-	else if(Game::instance().getKey(GLFW_KEY_UP) || Game::instance().getKey(GLFW_KEY_W))
+	else if (Game::instance().getKey(GLFW_KEY_UP) || Game::instance().getKey(GLFW_KEY_W))
 	{
+		nextPos.y -= 2;
 		if (sprite->animation() != MOVE_UP) {
 			sprite->changeAnimation(MOVE_UP);
 			facing = FACE_UP;
 		}
-		posPlayer.y -= 2;
-		if(map->collisionMoveUp(glm::ivec2(0, 16) + posPlayer, glm::ivec2(16, 16)))
-		if(map->collisionMoveUp(glm::ivec2(0, 16) + posPlayer, glm::ivec2(16, 16)))
-		{
-			posPlayer.y += 2;
-			sprite->changeAnimation(STAND_UP);
-		}
 	}
-	else if(Game::instance().getKey(GLFW_KEY_DOWN) || Game::instance().getKey(GLFW_KEY_S))
+	else if (Game::instance().getKey(GLFW_KEY_DOWN) || Game::instance().getKey(GLFW_KEY_S))
 	{
+		nextPos.y += 2;
 		if (sprite->animation() != MOVE_DOWN) {
 			sprite->changeAnimation(MOVE_DOWN);
 			facing = FACE_DOWN;
 		}
-		posPlayer.y += 2;
-		if(map->collisionMoveDown(glm::ivec2(0, 16) + posPlayer, glm::ivec2(16, 16)))
-		if(map->collisionMoveDown(glm::ivec2(0, 16) + posPlayer, glm::ivec2(16, 16)))
-		{
-			posPlayer.y -= 2;
-			sprite->changeAnimation(STAND_DOWN);
-		}
 	}
 	else
 	{
-		if(sprite->animation() == MOVE_LEFT )
-			sprite->changeAnimation(STAND_LEFT);
-		else if(sprite->animation() == MOVE_RIGHT )
-			sprite->changeAnimation(STAND_RIGHT);
-		else if(sprite->animation() == MOVE_UP )
-			sprite->changeAnimation(STAND_UP);
-		else if(sprite->animation() == MOVE_DOWN)
-			sprite->changeAnimation(STAND_DOWN);
+		// Si no se pulsa ninguna tecla, cambia a la animaci�n de estar quieto
+		if (sprite->animation() == MOVE_LEFT) sprite->changeAnimation(STAND_LEFT);
+		else if (sprite->animation() == MOVE_RIGHT) sprite->changeAnimation(STAND_RIGHT);
+		else if (sprite->animation() == MOVE_UP) sprite->changeAnimation(STAND_UP);
+		else if (sprite->animation() == MOVE_DOWN) sprite->changeAnimation(STAND_DOWN);
+	}
+
+	// Comprob� la colisi�n en la posici�n de destino ANTES de mover al jugador
+	glm::ivec2 realNextPos = glm::ivec2(nextPos.x + colliderOffset.x, nextPos.y + colliderOffset.y);
+	if (nextPos.x != posPlayer.x) {
+		if (nextPos.x > posPlayer.x) { // Se mueve a la derecha
+			if (!map->collisionMoveRight(realNextPos, colliderSize)) {
+				posPlayer.x = nextPos.x;
+			}
+		}
+		else { // Se mueve a la izquierda
+			if (!map->collisionMoveLeft(realNextPos, colliderSize)) {
+				posPlayer.x = nextPos.x;
+			}
+		}
+	}
+
+	if (nextPos.y != posPlayer.y) {
+		if (nextPos.y > posPlayer.y) { // Se mueve hacia abajo
+			if (!map->collisionMoveDown(realNextPos, colliderSize)) {
+				posPlayer.y = nextPos.y;
+			}
+		}
+		else { // Se mueve hacia arriba
+			if (!map->collisionMoveUp(realNextPos, colliderSize)) {
+				posPlayer.y = nextPos.y;
+			}
+		}
 	}
 
 	zWasDown = zDown;
@@ -245,6 +260,7 @@ void Player::update(int deltaTime)
 	//std::cout << "Health: " << health << std::endl;
 	
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
+	//std::cout << posPlayer.x/8.f << " " << posPlayer.y/8.f << std::endl;
 }
 
 void Player::render()
@@ -296,7 +312,7 @@ void Player::setTileMap(TileMap *tileMap)
 void Player::setPosition(const glm::vec2 &pos)
 {
 	posPlayer = pos;
-	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
+	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));	
 }
 
 

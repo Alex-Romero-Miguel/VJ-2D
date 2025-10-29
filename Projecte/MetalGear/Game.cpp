@@ -39,17 +39,18 @@ void Game::keyPressed(int key)
 		scene.giveAllItems();
 	}
 	else if (key == GLFW_KEY_K) { // Teleportar a primer mapa interior
+		
 		scene.teleportToInterior();
 	}
 	else if (key == GLFW_KEY_B) { // teleportar al Boss
 		scene.teleportToBoss();
+	}
+	else if (key == GLFW_KEY_R) {
+		scene.restartGame();
 
 	}
 
 	keys[key] = true;
-
-	
-
 }
 
 void Game::keyReleased(int key)

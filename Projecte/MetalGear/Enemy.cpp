@@ -218,3 +218,5 @@ void Enemy::setPatrolRoute(const glm::ivec2& start, const glm::ivec2& end) {
 		currentPatrolTarget = patrolEnd; // Su primer objetivo es el final de la ruta
 	}
 }
+
+

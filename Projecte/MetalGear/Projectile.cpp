@@ -3,12 +3,8 @@
 
 void Projectile::init(const glm::vec2& pos, const glm::vec2& dir, ShaderProgram& shaderProgram)
 {
-	posProjectile = pos;
-	direction = dir;
-
 	spritesheet.loadFromFile("images/projectile.png", TEXTURE_PIXEL_FORMAT_RGBA);
-	
-	sprite = Sprite::createSprite(glm::ivec2(8, 8), glm::vec2(1.0, 1.0), &spritesheet, &shaderProgram);
+	sprite = Sprite::createSprite(glm::ivec2(8, 8), glm::vec2(0.5, 0.5), &spritesheet, &shaderProgram);
 
 	sprite->setNumberAnimations(1);
 	sprite->setAnimationSpeed(0, 8);
@@ -17,16 +13,12 @@ void Projectile::init(const glm::vec2& pos, const glm::vec2& dir, ShaderProgram&
 	sprite->changeAnimation(0);
 
 	sprite->setPosition(posProjectile);
-
+	posProjectile = pos;
+	direction = dir;
 }
 
 void Projectile::update(int deltaTime, TileMap* map)
 {
-	lifetime -= deltaTime;
-	if (lifetime <= 0) {
-		toRemove = true;
-		return;
-	}
 	posProjectile += direction * speed * float(deltaTime);
 
 	// Comprueba si choca con una pared
@@ -36,6 +28,12 @@ void Projectile::update(int deltaTime, TileMap* map)
 		toRemove = true;
 	}
 
+	lifetime -= deltaTime;
+	if (lifetime <= 0) {
+		toRemove = true;
+	}
+
+	sprite->update(deltaTime);
 	sprite->setPosition(posProjectile);
 }
 

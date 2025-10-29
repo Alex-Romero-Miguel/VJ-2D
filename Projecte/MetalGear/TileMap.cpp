@@ -138,8 +138,6 @@ void TileMap::prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program)
 		}
 	}
 
-	
-
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 	glGenBuffers(1, &vbo);
@@ -157,7 +155,7 @@ bool TileMap::collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size) c
 {
 	int x, y0, y1;
 	
-	x = pos.x / tileSize;
+	x = (pos.x + 1) / tileSize;
 	y0 = pos.y / tileSize;
 	y1 = (pos.y + size.y - 1) / tileSize;
 	for(int y=y0; y<=y1; y++)
@@ -212,15 +210,14 @@ bool TileMap::collisionMoveUp(const glm::ivec2& pos, const glm::ivec2& size) con
 	return false;
 }
 
-
-
 bool TileMap::isWalkable(int x, int y) const
 {
 	// Comprobamos que esté dentro del rango del mapa
 	if (x < 0 || y < 0 || x >= mapSize.x || y >= mapSize.y)
 		return false; // fuera del mapa = no caminable
 
-	// Si el valor del tile es 0, está vacío => se puede caminar
-	return map[y * mapSize.x + x] <= lastWalkable;
+	// Si el valor del tile es 0, está vacío, no se puede caminar
+	int id = map[y * mapSize.x + x];
+	return id != 0 && id <= lastWalkable;
 }
 

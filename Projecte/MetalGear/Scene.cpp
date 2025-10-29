@@ -6,6 +6,7 @@
 #include "Guard.h"
 #include "Dog.h"
 #include "Camera.h"
+#include "Boss.h"
 #include "Guard.h"
 
 #include <fstream>
@@ -22,6 +23,7 @@
 
 #define HUD_X_TILES 0
 #define HUD_Y_TILES 0
+
 
 
 Scene::Scene()
@@ -58,7 +60,6 @@ Scene::~Scene()
 
 void Scene::init()
 {
-	currentLevel = 1;
 	initShaders();
 
 	map = TileMap::createTileMap("levels/interior.txt", glm::vec2(SCREEN_X, SCREEN_Y), texProgram);
@@ -70,6 +71,7 @@ void Scene::init()
 	player->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
 	player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * tile_size, INIT_PLAYER_Y_TILES * tile_size));
 	player->setTileMap(map);
+	playerStartPos = glm::ivec2(15, 15);
 
 	hud = new HUD();
 	hud->init(tile_size, glm::ivec2(SCREEN_X, SCREEN_Y), glm::ivec2(HUD_X_TILES * tile_size, map_size.y + HUD_Y_TILES * tile_size),player, texProgram);
@@ -131,49 +133,74 @@ void Scene::init()
 	currentLevel = 1;
 	// currentTime = 0.0f;
 	cameraPos = glm::vec2(0,0);
-	loadLevel("levels/exterior.txt");
-	playerStartPos = glm::ivec2(INIT_PLAYER_X_TILES, INIT_PLAYER_Y_TILES);
-	projection = glm::ortho(0.f, float(SCREEN_WIDTH+ SCREEN_X), float(SCREEN_HEIGHT+ SCREEN_Y)+(hud->getHeight() * tile_size), 0.f);
+	loadLevel("levels/exterior.txt", glm::vec2(15,15));
+	playerStartPos = glm::ivec2(15, 15);
+	projection = glm::ortho(0.f, float(SCREEN_WIDTH+ SCREEN_X), float(SCREEN_HEIGHT+ SCREEN_Y + +(hud->getHeight() * tile_size)), 0.f);
 	deathTimer = 1000;
+
+	allDoors.clear();
+	// Cargá las puertas del Nivel 1 (exterior)
+	allDoors[1] = {
+		{glm::ivec2(54, 12), glm::ivec2(2, 3), "levels/truck.txt", glm::ivec2(20, 11), 4},  // El '4' es el ID del nivel de destino
+		{glm::ivec2(84, 51), glm::ivec2(4, 4), "levels/interior.txt", glm::ivec2(47, 67), 2}
+	};
+
+	// Cargá las puertas del Nivel 2 (interior)
+	allDoors[2] = {
+		{glm::ivec2(56, 8), glm::ivec2(1, 3), "levels/room.txt", glm::ivec2(13, 10), 4},
+		{glm::ivec2(9, 19), glm::ivec2(2, 3), "levels/boss.txt", glm::ivec2(15, 15), 3}
+	};
+
+	// Cargá las puertas del Nivel 4 (camión)
+	allDoors[4] = {
+		{glm::ivec2(24, 10), glm::ivec2(4, 8), "levels/exterior.txt", glm::ivec2(56, 14), 1}
+	};
+	// Cargá las puertas del Nivel 5 (room)
+	allDoors[5] = {
+		{glm::ivec2(4, 8), glm::ivec2(2, 2), "levels/interior.txt", glm::ivec2(50, 8), 2}
+	};
+
+
 }
 
-void Scene::loadLevel(const string& levelFile)
+void Scene::loadLevel(const string& levelFile, const glm::ivec2& playerSpawnPos)
 {
-	// 1. Limpiar recursos antiguos
+	// Limpiar recursos antiguos
 	for (Enemy* enemy : enemies) {
 		delete enemy;
 	}
 	enemies.clear();
-
-	if (levelFile == "levels/exterior.txt") {
-		currentLevel = 1;
-		playerStartPos = glm::ivec2(15, 15);
-	}
-	else if (levelFile == "levels/interior.txt") {
-		currentLevel = 2;
-		playerStartPos = glm::ivec2(50, 50);
-	}
-	else if (levelFile == "levels/boss.txt") {
-		currentLevel = 3;
-	}
+	if (map != NULL) delete map;
 
 	map = TileMap::createTileMap(levelFile, glm::vec2(SCREEN_X, SCREEN_Y), texProgram);
 	player->setTileMap(map);
-	player->setPosition(glm::vec2(playerStartPos.x * map->getTileSize(), playerStartPos.y * map->getTileSize()));
 
+	player->setPosition(glm::vec2(
+		playerSpawnPos.x * map->getTileSize(),
+		playerSpawnPos.y * map->getTileSize()
+	));
 
-	////  Cargar los enemigos del nuevo nivel (�esto deber�a leerse del archivo del nivel!)
-	//// Por ahora, lo ponemos como ejemplo:
-	/*if (levelFile == "levels/exterior.txt") {
-		Guard* guard = new Guard();
-		guard->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
-		guard->setPosition(glm::vec2(10 * map->getTileSize(), 35 * map->getTileSize()));
-		guard->setTileMap(map);
-		guard->setPlayer(player);
-		enemies.push_back(guard);
-	}*/
+	if (levelFile == "levels/exterior.txt") {
 
-	//loadPlayerStartPosition(levelFile);
+		currentLevel = 1;
+	}
+	else if (levelFile == "levels/interior.txt") {
+		currentLevel = 2;
+		
+	}
+	else if (levelFile == "levels/boss.txt") {
+		
+
+		currentLevel = 3;
+	}
+	else if (levelFile == "levels/truck.txt") {
+
+		currentLevel = 4;
+
+	}
+	else if (levelFile == "levels/room.txt") {
+		currentLevel = 5;
+	}	
 
 	loadEnemiesFromFile(levelFile);
 }
@@ -196,7 +223,6 @@ void Scene::loadEnemiesFromFile(const string& levelFile)
 
 		Enemy* newEnemy = nullptr;
 
-		// Usa un "factory" para crear el tipo de enemigo correcto
 		if (enemyType == "guard") {
 			newEnemy = new Guard();
 			/*int endX, endY;
@@ -212,32 +238,22 @@ void Scene::loadEnemiesFromFile(const string& levelFile)
 			int endX, endY;
 			fin >> endX >> endY;
 
-			// Solo haz la configuraci�n espec�fica de la c�mara aqu�
 			camera->setPatrolRoute(
 				glm::ivec2(startX * map->getTileSize(), startY * map->getTileSize()),
 				glm::ivec2(endX * map->getTileSize(), endY * map->getTileSize())
 			);
+			camera->setEnemies(&enemies);
 			newEnemy = camera;
-			/*camera->setPatrolRoute(glm::ivec2(5 * map->getTileSize(), 10 * map->getTileSize()),
-				glm::ivec2(10 * map->getTileSize(), 10 * map->getTileSize()));*/
-
-			/*newEnemy = camera;
-			enemies.push_back(newEnemy);*/
-
-			/*camera->setPosition(glm::vec2(x * map->getTileSize(),
-				y * map->getTileSize()));
-
-			camera->setTileMap(map);
-			camera->setPlayer(player);
-			enemies.push_back(camera);*/
+		}
+		else if (enemyType == "boss") {
+			Boss* boss = new Boss();
+			newEnemy = boss;
 		}
 
 		// Si se cre� un enemigo v�lido, inicial�zalo y a��delo a la lista
 		if (newEnemy != nullptr) {
 			newEnemy->init(glm::ivec2(0, 0), texProgram);
-			//if (!newEnemy->isMovable()) { 
 			newEnemy->setPosition(glm::vec2(startX * map->getTileSize(), startY * map->getTileSize()));
-			//}
 			newEnemy->setTileMap(map);
 			newEnemy->setPlayer(player);
 			enemies.push_back(newEnemy);
@@ -255,7 +271,6 @@ void Scene::restartGame()
 	delete player;
 	delete map;
 
-	// Reiniciar todo igual que en init()
 	init();
 }
 
@@ -269,7 +284,7 @@ bool Scene::checkCollision(const glm::ivec4& a, const glm::ivec4& b)
 
 void Scene::update(int deltaTime)
 {
-	// Comprobamos si el jugador est� muerto
+	// Si el jugador esta muerto, reiniciar el juego
 	if (player->isDead()) {
 		deathTimer -= deltaTime;
 		if (deathTimer <= 0)
@@ -277,60 +292,91 @@ void Scene::update(int deltaTime)
 		return;
 	}
 
+
+	const int ts = map->getTileSize();
+	glm::ivec4 playerBox(player->getPosition(), player->getSize());
 	glm::vec2 playerPos = player->getPosition();
 
-	// Si el jugador se sale por la derecha
-	if (playerPos.x + player->getSize().x > cameraPos.x + SCREEN_WIDTH) {
-		cameraPos.x +=SCREEN_WIDTH; // Mueve la c�mara una pantalla a la derecha
-		player->setPosition(glm::vec2(playerPos.x + player->getSize().x + 1, playerPos.y)); // Coloca al jugador al inicio de la nueva pantalla
-	}
-	// Si el jugador se sale por la izquierda
-	else if (playerPos.x < cameraPos.x ) {
-		cameraPos.x -=SCREEN_WIDTH; // Mueve la c�mara a la izquierda
-		player->setPosition(glm::vec2(playerPos.x - player->getSize().x - 1, playerPos.y)); // Coloca al jugador al final de la nueva pantalla
-	}
-	// Si el jugador se sale por abajo
-	else if (playerPos.y + player->getSize().y > cameraPos.y + SCREEN_HEIGHT) {
-		cameraPos.y += SCREEN_HEIGHT; // Mueve la c�mara una pantalla hacia abajo
-		player->setPosition(glm::vec2(playerPos.x, playerPos.y + player->getSize().y + 1)); // Coloca al jugador al inicio de la nueva pantalla
-	}
-	// Si el jugador se sale por arriba
-	else if (playerPos.y < cameraPos.y) {
-		cameraPos.y -= SCREEN_HEIGHT; // Mueve la c�mara una pantalla hacia arriba
-		player->setPosition(glm::vec2(playerPos.x, playerPos.y - player->getSize().y - 1));
+	bool changeNivel = false;
+
+	const std::vector<Door>& currentDoors = allDoors[currentLevel];
+	for (const Door& d : currentDoors)
+	{
+		if (checkCollision(
+			glm::ivec4(player->getPosition(), player->getSize()),
+			glm::ivec4(d.pos.x * map->getTileSize(), d.pos.y * map->getTileSize(), d.size.x * map->getTileSize(), d.size.y * map->getTileSize())
+		))
+		{
+			loadLevel(d.targetLevel, d.spawnPos);
+			return;
+		}
 	}
 
-	// Actualizamos al jugador
-	// Comprobamos si el jugador est� muerto
-	if (player->isDead()) {
-		deathTimer -= deltaTime;
-		if (deathTimer <= 0)
-			restartGame();
-		return;
-	}
+	/*if (!changeNivel) {*/
+		// Si el jugador se sale por la derecha
+		if (playerPos.x + player->getSize().x > cameraPos.x + SCREEN_WIDTH) {
+			cameraPos.x += SCREEN_WIDTH; // Mueve la c�mara una pantalla a la derecha
+			player->setPosition(glm::vec2(playerPos.x + player->getSize().x + 1, playerPos.y)); // Coloca al jugador al inicio de la nueva pantalla
+		}
+		// Si el jugador se sale por la izquierda
+		else if (playerPos.x < cameraPos.x) {
+			cameraPos.x -= SCREEN_WIDTH; // Mueve la c�mara a la izquierda
+			player->setPosition(glm::vec2(playerPos.x - player->getSize().x - 1, playerPos.y)); // Coloca al jugador al final de la nueva pantalla
+		}
+		// Si el jugador se sale por abajo
+		else if (playerPos.y + player->getSize().y > cameraPos.y + SCREEN_HEIGHT) {
+			cameraPos.y += SCREEN_HEIGHT; // Mueve la c�mara una pantalla hacia abajo
+			player->setPosition(glm::vec2(playerPos.x, playerPos.y + player->getSize().y + 1)); // Coloca al jugador al inicio de la nueva pantalla
+		}
+		// Si el jugador se sale por arriba
+		else if (playerPos.y < cameraPos.y) {
+			cameraPos.y -= SCREEN_HEIGHT; // Mueve la c�mara una pantalla hacia arriba
+			player->setPosition(glm::vec2(playerPos.x, playerPos.y - player->getSize().y - 1));
+		}
+	//}
+
+	
 
 	// Actualizamos al jugador
 	player->update(deltaTime);
 
-	for (auto it = enemies.begin(); it != enemies.end(); /* El incremento se hace dentro */)
+	for (auto it = enemies.begin(); it != enemies.end();)
 	{
 		Enemy* enemy = *it;
 
-		// 1. Comprueba si el enemigo est� en la pantalla actual
+		// Comprueba si el enemigo está en la pantalla actual
 		bool isOnScreen = (enemy->getPosition().x + enemy->getSize().x > cameraPos.x &&
 			enemy->getPosition().x < cameraPos.x + 256.f &&
 			enemy->getPosition().y + enemy->getSize().y > cameraPos.y &&
 			enemy->getPosition().y < cameraPos.y + 192.f);
 
-		// 2. Actualiza la IA solo si est� activo
+		// Actualiza la IA solo si está activo
 		if (isOnScreen) {
 			enemy->update(deltaTime);
+
+			Guard* guard = dynamic_cast<Guard*>(enemy);
+			Boss* boss = dynamic_cast<Boss*>(enemy);
+			if ((guard != nullptr || boss != nullptr) && enemy->attack(deltaTime)) {
+				Projectile* p = new Projectile();
+				glm::vec2 dir = glm::normalize(glm::vec2(player->getPosition()) - enemy->getPosition());
+				p->init(enemy->getPosition() + glm::vec2(8, 16), dir, texProgram);
+				projectiles.push_back(p);
+			}
+
+			if (!enemy->isDead() && !player->isDead() && checkCollision(
+				glm::ivec4(player->getPosition(), player->getSize()),
+				glm::ivec4(enemy->getPosition(), enemy->getSize())))
+			{
+				// El perro muerde, el guardia hace daño por toque, etc.
+				if (enemy->attack(deltaTime) && !godMode) {
+					player->takeDamage(enemy->getDamage());
+				}
+			}
 		}
 		else {
 			enemy->resetState();
 		}
 
-		// 3. Comprueba el ataque del jugador (pu�etazo)
 		glm::ivec4 hitbox = player->getPunchHitbox();
 		if (hitbox.z > 0 && !enemy->isDead()) {
 			if (checkCollision(hitbox, glm::ivec4(enemy->getPosition(), enemy->getSize()))) {
@@ -338,7 +384,7 @@ void Scene::update(int deltaTime)
 			}
 		}
 
-		// 4. Comprueba el ataque de contacto del enemigo (si est� en pantalla)
+		// 4. Comprueba el ataque de contacto del enemigo (si está en pantalla)
 		if (isOnScreen && !enemy->isDead() && !player->isDead()) {
 			if (checkCollision(glm::ivec4(player->getPosition(), player->getSize()), glm::ivec4(enemy->getPosition(), enemy->getSize()))) {
 				if (enemy->attack(deltaTime) && !godMode) {
@@ -347,7 +393,7 @@ void Scene::update(int deltaTime)
 			}
 		}
 
-		// 5. Elimina al enemigo si est� muerto y marcado para ser borrado
+		// 5. Elimina al enemigo si está muerto y marcado para ser borrado
 		if (enemy->toRemove) {
 			delete enemy;
 			it = enemies.erase(it);
@@ -361,10 +407,10 @@ void Scene::update(int deltaTime)
 		Projectile* p = *it;
 		p->update(deltaTime, map);
 
-		// Comprueba colisi�n con el jugador
+		// Comprueba colisión con el jugador
 		if (checkCollision(glm::ivec4(player->getPosition(), player->getSize()), glm::ivec4(p->getPosition(), p->getSize()))) {
 			if (!godMode) player->takeDamage(1);
-			p->toRemove = true; // Marca la bala para ser borrada
+			p->toRemove = true; 
 		}
 
 		if (p->toRemove) {
@@ -435,15 +481,11 @@ void Scene::render()
 		p->render();
 	}
 
-	//Projectile projectile = new Projectile();
+	view = glm::mat4(1.0f);
+	texProgram.setUniformMatrix4f("view", view);
+	model = glm::mat4(1.0f);
+	texProgram.setUniformMatrix4f("model", model);
 
-	{
-		auto* p = new Projectile();
-		// En coordenadas de mundo. Como la view usa -cameraPos, se ver� en la esquina superior-izquierda del mundo.
-		p->init(glm::vec2(0.f, 0.f), glm::vec2(0.f, 0.f), texProgram);
-		projectiles.push_back(p);
-		p->render();
-	}
 	hud->render();
 }
 
@@ -490,19 +532,22 @@ void Scene::fullHeal() {
 }
 
 void Scene::giveAllItems() {
-	std::cout << "Todos los �tems a�adidos (placeholder)" << std::endl;
-	// Aqu� puedes a�adir objetos al inventario si ya tienes esa mec�nica.
+	std::cout << "Todos los ítems añadidos (placeholder)" << std::endl;
+	// Aquí puedes añadir objetos al inventario si ya tienes esa mecánica.
 }
 
 void Scene::teleportToInterior() {
 	if (!map || !player) return;
-	loadLevel("levels/interior.txt");
+	loadLevel("levels/interior.txt", glm::vec2(47, 58));
 
 	//player->setPosition(glm::vec2(5 * map->getTileSize(), 5 * map->getTileSize()));
 }
 
 void Scene::teleportToBoss() {
 	if (!map || !player) return;
+	
+	loadLevel("levels/boss.txt", glm::vec2(15, 20));
+
 
 	//player->setPosition(glm::vec2(40 * map->getTileSize(), 10 * map->getTileSize()));
 }

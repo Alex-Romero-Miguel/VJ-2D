@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClInclude Include="AnimKeyframes.h" />
     <ClInclude Include="AStar.h" />
+    <ClInclude Include="Boss.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Dog.h" />
     <ClInclude Include="Enemy.h" />
@@ -26,13 +27,14 @@
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TileMap.h" />
-    <ClInclude Include="HUD.h"/>
-    <ClInclude Include="Item.h"/>
-    <ClInclude Include="Rations.h"/>
+    <ClInclude Include="HUD.h" />
+    <ClInclude Include="Item.h" />
+    <ClInclude Include="Rations.h" />
     <ClInclude Include="Weapon.h"/>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AStar.cpp" />
+    <ClCompile Include="Boss.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Dog.cpp" />
     <ClCompile Include="Enemy.cpp" />
@@ -47,9 +49,9 @@
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TileMap.cpp" />
-    <ClCompile Include="HUD.cpp"/>
-    <ClCompile Include="Item.cpp"/>
-    <ClCompile Include="Rations.cpp"/>
+    <ClCompile Include="HUD.cpp" />
+    <ClCompile Include="Item.cpp" />
+    <ClCompile Include="Rations.cpp" />
     <ClCompile Include="Weapon.cpp"/>
   </ItemGroup>
   <PropertyGroup Label="Globals">

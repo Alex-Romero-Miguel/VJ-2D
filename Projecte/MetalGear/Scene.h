@@ -11,11 +11,21 @@
 #include "HUD.h"
 #include "Rations.h"
 #include "Weapon.h"
-
+#include <map>
+#include <vector>
 
 // Scene contains all the entities of our game.
 // It is responsible for updating and render them.
 
+struct Door {
+	glm::ivec2 pos;				// esquina superior de la puerta, en tiles
+	glm::ivec2 size;			// tama�o puerta en tiles
+	std::string targetLevel;	// archivo de nivel de destino
+	glm::ivec2 spawnPos;        // posici�n de aparici�n
+	int levelID;
+	//std::string instanceTag;    // identificador l�gico
+	//std::string returnTag;      // a qu� punto del mapa exterior vuelve
+};
 
 class Scene
 {
@@ -26,7 +36,7 @@ public:
 
 	void init();
 
-	void loadLevel(const string& levelFile);
+	void loadLevel(const string& levelFile, const glm::ivec2& playerSpawnPos);
 	void loadEnemiesFromFile(const string& levelFile);
 
 	void restartGame();
@@ -59,13 +69,12 @@ private:
 	int deathTimer = 1000; 
 	bool godMode = false;
 
-	int currentLevel = 1;
-
-
 	glm::ivec2 playerStartPos;
 
 	vector<Item*> items;
 
+	std::map<int, std::vector<Door>> allDoors;
+	int currentLevel = 1;
 };
 
 

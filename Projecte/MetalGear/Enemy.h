@@ -32,7 +32,7 @@ public:
 	virtual glm::ivec2 getSize() { return glm::ivec2(16, 32); };
 
 
-	void takeDamage(int amount);
+	virtual void takeDamage(int amount);
 	bool isDead() const;
 
 	bool toRemove = false;
@@ -43,6 +43,18 @@ public:
 	bool isMovable() const { return movable; }
 
 	void setPatrolRoute(const glm::ivec2& start, const glm::ivec2& end);
+
+
+	virtual bool isBoss() const { return false; };
+
+
+	virtual bool isGuard() const { return false; };
+
+
+	virtual void setToAlarted() {};
+
+	
+
 	
 
 protected:
@@ -83,9 +95,11 @@ protected:
 	
 	int deadTimer = 0;
 
-	float visionRange = 300.f; // rango de visión
+	float visionRange = 200.f; // rango de visión
 	float visionAngle = 45.f;  // en grados
 	float attackRange = 100.f;
+
+	int attackCooldown = 0;
 
 
 	bool movable = true;

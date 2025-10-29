@@ -35,20 +35,18 @@ void Guard::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 	sprite->addKeyframe(GUARD_MOVE_DOWN, glm::vec2(0.f, 0.f));
 	sprite->addKeyframe(GUARD_MOVE_DOWN, glm::vec2(0.5f, 0.f));
 
-	sprite->changeAnimation(GUARD_STAND_DOWN);
+	sprite->changeAnimation(GUARD_STAND_LEFT);
 	tileMapDispl = tileMapPos;
-	facing = FACE_DOWN;
+	facing = FACE_LEFT;
 
 	posEnemy = glm::vec2(0, 0);
 
 	sprite->setPosition(glm::vec2(tileMapDispl.x + posEnemy.x,
 		tileMapDispl.y + posEnemy.y));
 
-	state = PATROLLING;
+	state = IDLE;
 
-	health = 10;
-
-	movable = true;
+	health = 5;
 
 	attackCooldown = 0;
 }
@@ -87,10 +85,10 @@ void Guard::update(int deltaTime)
 
 	switch (state)
 	{
-	case PATROLLING:
+	case IDLE:
 		patrol(deltaTime);
 		if (canSeePlayer()) {
-			state = CHASING;
+			state = ATTACKING;
 			updatePathToPlayer();
 		}
 		break;
@@ -102,12 +100,11 @@ void Guard::update(int deltaTime)
 		
 		break;
 	case ATTACKING:
-		stopMovingAnim();
+		chase(deltaTime);
 
 		if (!canSeePlayer() || glm::distance(posEnemy, glm::vec2(player->getPosition())) > attackRange) {
 			state = CHASING;
 		}
-
 		break;
 	}
 	sprite->setPosition(glm::vec2(tileMapDispl.x + posEnemy.x,
@@ -139,21 +136,14 @@ void Guard::changeDirAnim(glm::vec2 dir) {
 		sprite->changeAnimation(newAnim);
 }
 
-//bool Guard::attack(int deltaTime)
-//{
-//	return false;
-//}
 
 void Guard::resetState(){
-	state = PATROLLING;
-	currentPatrolTarget = patrolEnd; // volver al inicio del patrullaje
+	state = IDLE;
 	path.clear();
-
 	stopMovingAnim();
-
 	posEnemy = patrolStart;
-	/*sprite->setPosition(glm::vec2(tileMapDispl.x + posEnemy.x,
-		tileMapDispl.y + posEnemy.y));*/
+	sprite->setPosition(glm::vec2(tileMapDispl.x + posEnemy.x,
+		tileMapDispl.y + posEnemy.y));
 }
 
 bool Guard::attack(int deltaTime)
@@ -165,4 +155,12 @@ bool Guard::attack(int deltaTime)
 		return true; // ¡Disparo exitoso!
 	}
 	return false; // No disparó
+}
+
+
+void Guard::setToAlarted() {
+	if (state == IDLE) {
+		state = ATTACKING;
+		updatePathToPlayer();
+	}
 }
